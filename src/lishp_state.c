@@ -38,6 +38,9 @@ LISHP_State_Create(LISHP_Alloc* alloc)
   state->vm = LISHP_VM_Create(alloc, state->config);
   if (!state->vm) goto alloc_failure;
 
+  state->symtab = LISHP_Symtab_Create(alloc);
+  if (!state->symtab) goto alloc_failure;
+
   return state;
 
 alloc_failure:
@@ -50,6 +53,7 @@ void
 LISHP_State_Destroy(LISHP_State* state)
 {
   if (!state) return;
+  LISHP_Symtab_Destroy(state->symtab);
   LISHP_VM_Destroy(state->vm);
   LISHP_GC_Destroy(state->gc);
   LISHP_Diag_Destroy(state->diag);

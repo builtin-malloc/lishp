@@ -5,6 +5,7 @@
 #include "lishp_config.h"
 #include "lishp_diag.h"
 #include "lishp_gc.h"
+#include "lishp_symtab.h"
 #include "lishp_vm.h"
 
 #include <assert.h>
@@ -22,6 +23,7 @@ struct LISHP_State
   LISHP_Diag*   diag;
   LISHP_GC*     gc;
   LISHP_VM*     vm;
+  LISHP_Symtab* symtab;
 };
 
 /*****************************************************************************/
@@ -70,6 +72,13 @@ LISHP_State_GetVM(LISHP_State* state)
 {
   assert(state);
   return state->vm;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Symtab*
+LISHP_State_GetSymtab(LISHP_State* state)
+{
+  assert(state);
+  return state->symtab;
 }
 
 #endif /* LISHP_STATE_H */
