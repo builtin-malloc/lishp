@@ -5,6 +5,7 @@
 #include "lishp_config.h"
 #include "lishp_diag.h"
 #include "lishp_gc.h"
+#include "lishp_vm.h"
 
 #include <assert.h>
 
@@ -20,6 +21,7 @@ struct LISHP_State
   LISHP_Config* config;
   LISHP_Diag*   diag;
   LISHP_GC*     gc;
+  LISHP_VM*     vm;
 };
 
 /*****************************************************************************/
@@ -61,6 +63,13 @@ LISHP_State_GetGC(LISHP_State* state)
 {
   assert(state);
   return state->gc;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_VM*
+LISHP_State_GetVM(LISHP_State* state)
+{
+  assert(state);
+  return state->vm;
 }
 
 #endif /* LISHP_STATE_H */

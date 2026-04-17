@@ -3,6 +3,7 @@
 #include "lishp/lishp_config.h"
 #include "lishp/lishp_diag.h"
 #include "lishp/lishp_gc.h"
+#include "lishp/lishp_vm.h"
 
 #include <string.h>
 
@@ -34,6 +35,9 @@ LISHP_State_Create(LISHP_Alloc* alloc)
   state->gc = LISHP_GC_Create(alloc, state->config);
   if (!state->gc) goto alloc_failure;
 
+  state->vm = LISHP_VM_Create(alloc, state->config);
+  if (!state->vm) goto alloc_failure;
+
   return state;
 
 alloc_failure:
@@ -46,6 +50,7 @@ void
 LISHP_State_Destroy(LISHP_State* state)
 {
   if (!state) return;
+  LISHP_VM_Destroy(state->vm);
   LISHP_GC_Destroy(state->gc);
   LISHP_Diag_Destroy(state->diag);
   LISHP_Config_Destroy(state->config);
