@@ -44,6 +44,9 @@ LISHP_State_Create(LISHP_Alloc* alloc)
   state->reader = LISHP_Reader_Create(alloc, state->gc);
   if (!state->reader) goto alloc_failure;
 
+  state->writer = LISHP_Writer_Create(alloc);
+  if (!state->writer) goto alloc_failure;
+
   return state;
 
 alloc_failure:
@@ -56,6 +59,7 @@ void
 LISHP_State_Destroy(LISHP_State* state)
 {
   if (!state) return;
+  LISHP_Writer_Destroy(state->writer);
   LISHP_Reader_Destroy(state->reader);
   LISHP_Symtab_Destroy(state->symtab);
   LISHP_VM_Destroy(state->vm);

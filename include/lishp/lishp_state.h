@@ -8,6 +8,7 @@
 #include "lishp_read.h"
 #include "lishp_symtab.h"
 #include "lishp_vm.h"
+#include "lishp_write.h"
 
 #include <assert.h>
 
@@ -26,6 +27,7 @@ struct LISHP_State
   LISHP_VM*     vm;
   LISHP_Symtab* symtab;
   LISHP_Reader* reader;
+  LISHP_Writer* writer;
 };
 
 /*****************************************************************************/
@@ -88,6 +90,13 @@ LISHP_State_GetReader(LISHP_State* state)
 {
   assert(state);
   return state->reader;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Writer*
+LISHP_State_GetWriter(LISHP_State* state)
+{
+  assert(state);
+  return state->writer;
 }
 
 #endif /* LISHP_STATE_H */
