@@ -1,0 +1,57 @@
+###############################################################################
+#                                    PATHS                                    #
+###############################################################################
+
+LIBSRC := $(wildcard @SRCDIR@/lishp*.c)
+LIBOBJ := $(LIBSRC:@SRCDIR@/%.c=@OBJDIR@/%.o)
+LIBDEP := $(LIBOBJ:.o=.d)
+LIB    := @BINDIR@/liblishp.a
+
+BINSRC := @SRCDIR@/main.c
+BINOBJ := $(BINSRC:@SRCDIR@/%.c=@OBJDIR@/%.o)
+BINDEP := $(BINOBJ:.o=.d)
+BIN    := @BINDIR@/lishp
+
+###############################################################################
+#                                   TARGETS                                   #
+###############################################################################
+
+# BUILD #######################################################################
+
+.PHONY: build
+
+build: $(BIN)
+
+$(BIN): $(BINOBJ) $(LIB)
+	@CCLD@ -o $@ $(filter %.o,$^) @LDFLAGS@ -llishp
+$(LIB): $(LIBOBJ)
+	@AR@ @ARFLAGS@ $@ $(filter %.o,$^)
+
+@OBJDIR@/%.o: @SRCDIR@/%.c
+	@CC@ -o $@ -c $< @CFLAGS@
+
+-include $(LIBDEP)
+-include $(BINDEP)
+
+# CLEAN #######################################################################
+
+.PHONY: clean distclean
+
+clean:
+	rm -f $(BIN)
+	rm -f $(BINOBJ)
+	rm -f $(BINDEP)
+	rm -f $(LIB)
+	rm -f $(LIBOBJ)
+	rm -f $(LIBDEP)
+
+distclean:
+	rm -rf @BINDIR@
+	rm -rf @BINDIR@
+
+# CONFIGURE ###################################################################
+
+%: Makefile
+Makefile: Makefile.in configure
+	./configure
+

@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from pathlib import Path
+import os
+import subprocess
+import platform
+
+
+###############################################################################
+#                                  ARGUMENTS                                  #
+###############################################################################
+
+
+def parse_args():
+    parser = ArgumentParser(prog='configure', description='Configures the build system', formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--build-type', choices=['debug', 'release'], default='debug', help='Build Type')
+    parser.add_argument('--root-dir', type=Path, default=os.path.dirname(os.path.abspath(__file__)), help='Directory of the repo')
+    parser.add_argument('--no-strict', action='store_true', help='If set, warnings are not treated as error')
+    parser.add_argument('--toolchain', choices=['clang', 'gcc'], default='clang', help='Which compiler to use')
+    
+    return parser.parse_args()
+
+
+###############################################################################
+#                                CONFIGURATION                                #
+###############################################################################
+
+
+def build_config(args):
+    config = {
+        'MAKEFILE':    str(args.root_dir / 'Makefile'),
+        'MAKEFILE_IN': str(args.root_dir / 'Makefile.in'),
+        'CLANGD':      str(args.root_dir / '.clangd'),
+        'CLANGD_IN':   str(args.root_dir / '.clangd.in'),
+        'INCDIR':      str(args.root_dir / 'include'),
+        'BINDIR':      str(args.root_dir / 'bin'),
+        'OBJDIR':      str(args.root_dir / 'obj'),
+        'SRCDIR':      str(args.root_dir / 'src'),
+        'TESTDIR':     str(args.root_dir / 'test'),
+        'CFLAGS':      '-std=c23 -MMD -Wall -Wextra -Wpedantic',
+        'LDFLAGS':     '',
+        'ARFLAGS':     'rcs',
+    }
+
+    config['CFLAGS']  += f" -I{config['INCDIR']}"
+    config['LDFLAGS'] += f" -L{config['BINDIR']}"
+
+    if args.build_type == 'debug':
+        config['CFLAGS'] += ' -O0 -g'
+    if args.build_type == 'release':
+        config['CFLAGS'] += ' -O3 -DNDEBUG'
+    if not args.no_strict:
+        config['CFLAGS'] += ' -Werror'
+
+    if args.toolchain == 'clang':
+        config['CC']   = 'clang'
+        config['CCLD'] = 'clang'
+        config['AR']   = 'llvm-ar'
+    if args.toolchain == 'gcc':
+        config['CC']   = 'gcc'
+        config['CCLD'] = 'gcc'
+        config['AR']   = 'ar'
+
+    
+    return config
+
+
+def configure_clangd(config):
+    in_path  = Path(config['CLANGD_IN'])
+    out_path = Path(config['CLANGD'])
+    cflags   = config['CFLAGS'].replace(' ', '\n    - ')
+    
+    content = in_path.read_text()
+    content = content.replace('@CFLAGS@', cflags)
+
+    out_path.write_text(content)
+
+
+def configure_makefile(config):
+    in_path  = Path(config['MAKEFILE_IN'])
+    out_path = Path(config['MAKEFILE'])
+
+    content = in_path.read_text()
+
+    for key, value in config.items():
+        content = content.replace(f"@{key}@", value)
+
+    out_path.write_text(content)
+
+
+def configure_buildtree(config):
+    Path(config['BINDIR']).mkdir(exist_ok=True)
+    Path(config['OBJDIR']).mkdir(exist_ok=True)
+
+
+def configure_readline(config):
+    env = os.environ.copy()
+
+    if platform.system() == 'Darwin':
+        brew_pkgconfig = [
+            "/usr/local/opt/readline/lib/pkgconfig",
+            "/opt/homebrew/opt/readline/lib/pkgconfig"
+        ]
+        env["PKG_CONFIG_PATH"] = ":".join(brew_pkgconfig + [env.get("PKG_CONFIG_PATH", "")])
+        config['CFLAGS']  += ' -mmacosx-version-min=26.0'
+        config['LDFLAGS'] += ' -mmacosx-version-min=26.0'
+
+    config['CFLAGS']  += ' ' + subprocess.check_output(['pkg-config', '--cflags', 'readline'],
+                                                        env=env, text=True)
+    config['LDFLAGS'] += ' ' + subprocess.check_output(['pkg-config', '--libs', 'readline'],
+                                                        env=env, text=True)
+
+    # pkg-config sometimes adds a newline at the end
+    config['CLFAGS']  = config['CFLAGS'].rstrip()
+    config['LDFLAGS'] = config['LDFLAGS'].rstrip()
+
+
+###############################################################################
+#                                     MAIN                                    #
+###############################################################################
+
+
+def main():
+    args = parse_args()
+    config = build_config(args)
+
+    configure_readline(config)
+    configure_clangd(config)
+    configure_makefile(config)
+    configure_buildtree(config)
+
+
+if __name__ == '__main__':
+    main()
