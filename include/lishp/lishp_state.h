@@ -15,7 +15,7 @@ typedef struct LISHP_State LISHP_State;
 
 struct LISHP_State
 {
-  LISHP_Allocator* alloc;
+  LISHP_Alloc* alloc;
   LISHP_Config*    config;
   LISHP_Diag*      diag;
 };
@@ -25,7 +25,7 @@ struct LISHP_State
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_State*
-LISHP_State_Create(LISHP_Allocator* alloc);
+LISHP_State_Create(LISHP_Alloc* alloc);
 void
 LISHP_State_Destroy(LISHP_State* state);
 
@@ -33,7 +33,7 @@ LISHP_State_Destroy(LISHP_State* state);
 /*                                 ACCESSORS                                 */
 /*****************************************************************************/
 
-[[nodiscard, maybe_unused]] static inline LISHP_Allocator*
+[[nodiscard, maybe_unused]] static inline LISHP_Alloc*
 LISHP_State_GetAlloc(LISHP_State* state)
 {
   assert(state);

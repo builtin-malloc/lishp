@@ -7,20 +7,18 @@
 /*                                   TYPES                                   */
 /*****************************************************************************/
 
-typedef void* (*LISHP_Allocator_MallocFunction)(void* ctx, size_t size);
-typedef void  (*LISHP_Allocator_FreeFunction)(void* ctx, void* ptr);
-typedef void* (*LISHP_Allocator_ReallocFunction)(void*  ctx,
-                                                 void*  ptr,
-                                                 size_t size);
+typedef void* (*LISHP_Alloc_MallocFunc)(void* ctx, size_t size);
+typedef void  (*LISHP_Alloc_FreeFunc)(void* ctx, void* ptr);
+typedef void* (*LISHP_Alloc_ReallocFunc)(void* ctx, void* ptr, size_t size);
 
-typedef struct LISHP_Allocator LISHP_Allocator;
+typedef struct LISHP_Alloc LISHP_Alloc;
 
-struct LISHP_Allocator
+struct LISHP_Alloc
 {
-  void*                           context;
-  LISHP_Allocator_MallocFunction  malloc_func;
-  LISHP_Allocator_FreeFunction    free_func;
-  LISHP_Allocator_ReallocFunction realloc_func;
+  void*                   context;
+  LISHP_Alloc_MallocFunc  malloc_func;
+  LISHP_Alloc_FreeFunc    free_func;
+  LISHP_Alloc_ReallocFunc realloc_func;
 };
 
 /*****************************************************************************/
@@ -28,7 +26,7 @@ struct LISHP_Allocator
 /*****************************************************************************/
 
 [[nodiscard]] static inline void*
-LISHP_Allocator_Malloc(LISHP_Allocator* alloc, size_t size)
+LISHP_Alloc_Malloc(LISHP_Alloc* alloc, size_t size)
 {
   if (!alloc) return nullptr;
   if (!alloc->malloc_func) return nullptr;
@@ -37,7 +35,7 @@ LISHP_Allocator_Malloc(LISHP_Allocator* alloc, size_t size)
 }
 
 [[maybe_unused]] static inline void*
-LISHP_Allocator_Free(LISHP_Allocator* alloc, void* ptr)
+LISHP_Alloc_Free(LISHP_Alloc* alloc, void* ptr)
 {
   if (!alloc) return ptr;
   if (!alloc->free_func) return ptr;
@@ -47,12 +45,12 @@ LISHP_Allocator_Free(LISHP_Allocator* alloc, void* ptr)
 }
 
 [[nodiscard, maybe_unused]] static inline void*
-LISHP_Allocator_Realloc(LISHP_Allocator* alloc, void* ptr, size_t size)
+LISHP_Alloc_Realloc(LISHP_Alloc* alloc, void* ptr, size_t size)
 {
   if (!alloc) return ptr;
   if (!alloc->realloc_func) return ptr;
   if (size == 0) return ptr;
-  if (!ptr) return LISHP_Allocator_Malloc(alloc, size);
+  if (!ptr) return LISHP_Alloc_Malloc(alloc, size);
   return alloc->realloc_func(alloc->context, ptr, size);
 }
 
@@ -60,7 +58,7 @@ LISHP_Allocator_Realloc(LISHP_Allocator* alloc, void* ptr, size_t size)
 /*                               HEAP ALLOCATOR                              */
 /*****************************************************************************/
 
-[[nodiscard]] LISHP_Allocator*
-LISHP_GetHeapAllocator();
+[[nodiscard]] LISHP_Alloc*
+LISHP_GetHeapAlloc();
 
 #endif /* LISHP_ALLOC_H */

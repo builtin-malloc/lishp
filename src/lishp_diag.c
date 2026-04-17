@@ -8,12 +8,12 @@
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_Diag*
-LISHP_Diag_Create(LISHP_Allocator* alloc, const LISHP_Config* config)
+LISHP_Diag_Create(LISHP_Alloc* alloc, const LISHP_Config* config)
 {
   assert(alloc);
   assert(config);
 
-  LISHP_Diag* diag = LISHP_Allocator_Malloc(alloc, sizeof(*diag));
+  LISHP_Diag* diag = LISHP_Alloc_Malloc(alloc, sizeof(*diag));
   if (!diag) {
     // TODO: Print error
     return nullptr;
@@ -28,5 +28,5 @@ void
 LISHP_Diag_Destroy(LISHP_Diag* diag)
 {
   if (!diag) return;
-  LISHP_Allocator_Free(diag->alloc, diag);
+  LISHP_Alloc_Free(diag->alloc, diag);
 }

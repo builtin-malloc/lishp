@@ -10,11 +10,11 @@
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_State*
-LISHP_State_Create(LISHP_Allocator* alloc)
+LISHP_State_Create(LISHP_Alloc* alloc)
 {
   assert(alloc);
 
-  LISHP_State* state = LISHP_Allocator_Malloc(alloc, sizeof(*state));
+  LISHP_State* state = LISHP_Alloc_Malloc(alloc, sizeof(*state));
   if (!state) {
     // TODO: Print Error
     return nullptr;
@@ -44,5 +44,5 @@ LISHP_State_Destroy(LISHP_State* state)
   if (!state) return;
   LISHP_Diag_Destroy(state->diag);
   LISHP_Config_Destroy(state->config);
-  LISHP_Allocator_Free(state->alloc, state);
+  LISHP_Alloc_Free(state->alloc, state);
 }

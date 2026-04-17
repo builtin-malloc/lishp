@@ -11,7 +11,7 @@ typedef struct LISHP_Config LISHP_Config;
 
 struct LISHP_Config
 {
-  LISHP_Allocator* alloc;
+  LISHP_Alloc* alloc;
 };
 
 /*****************************************************************************/
@@ -19,7 +19,7 @@ struct LISHP_Config
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_Config*
-LISHP_Config_Create(LISHP_Allocator* alloc);
+LISHP_Config_Create(LISHP_Alloc* alloc);
 void
 LISHP_Config_Destroy(LISHP_Config* config);
 

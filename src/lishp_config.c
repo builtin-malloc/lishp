@@ -8,11 +8,11 @@
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_Config*
-LISHP_Config_Create(LISHP_Allocator* alloc)
+LISHP_Config_Create(LISHP_Alloc* alloc)
 {
   assert(alloc);
 
-  LISHP_Config* config = LISHP_Allocator_Malloc(alloc, sizeof(*config));
+  LISHP_Config* config = LISHP_Alloc_Malloc(alloc, sizeof(*config));
   if (!config) {
     // TODO: Print Error
     return nullptr;
@@ -27,5 +27,5 @@ void
 LISHP_Config_Destroy(LISHP_Config* config)
 {
   if (!config) return;
-  LISHP_Allocator_Free(config->alloc, config);
+  LISHP_Alloc_Free(config->alloc, config);
 }

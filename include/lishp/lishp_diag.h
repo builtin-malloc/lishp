@@ -12,7 +12,7 @@ typedef struct LISHP_Diag LISHP_Diag;
 
 struct LISHP_Diag
 {
-  LISHP_Allocator* alloc;
+  LISHP_Alloc* alloc;
 };
 
 /*****************************************************************************/
@@ -20,7 +20,7 @@ struct LISHP_Diag
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_Diag*
-LISHP_Diag_Create(LISHP_Allocator* alloc, const LISHP_Config* config);
+LISHP_Diag_Create(LISHP_Alloc* alloc, const LISHP_Config* config);
 void
 LISHP_Diag_Destroy(LISHP_Diag* diag);
 
