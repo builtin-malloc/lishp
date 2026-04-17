@@ -41,6 +41,9 @@ LISHP_State_Create(LISHP_Alloc* alloc)
   state->symtab = LISHP_Symtab_Create(alloc);
   if (!state->symtab) goto alloc_failure;
 
+  state->reader = LISHP_Reader_Create(alloc, state->gc);
+  if (!state->reader) goto alloc_failure;
+
   return state;
 
 alloc_failure:
@@ -53,6 +56,7 @@ void
 LISHP_State_Destroy(LISHP_State* state)
 {
   if (!state) return;
+  LISHP_Reader_Destroy(state->reader);
   LISHP_Symtab_Destroy(state->symtab);
   LISHP_VM_Destroy(state->vm);
   LISHP_GC_Destroy(state->gc);

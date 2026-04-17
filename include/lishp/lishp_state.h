@@ -5,6 +5,7 @@
 #include "lishp_config.h"
 #include "lishp_diag.h"
 #include "lishp_gc.h"
+#include "lishp_read.h"
 #include "lishp_symtab.h"
 #include "lishp_vm.h"
 
@@ -24,6 +25,7 @@ struct LISHP_State
   LISHP_GC*     gc;
   LISHP_VM*     vm;
   LISHP_Symtab* symtab;
+  LISHP_Reader* reader;
 };
 
 /*****************************************************************************/
@@ -79,6 +81,13 @@ LISHP_State_GetSymtab(LISHP_State* state)
 {
   assert(state);
   return state->symtab;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Reader*
+LISHP_State_GetReader(LISHP_State* state)
+{
+  assert(state);
+  return state->reader;
 }
 
 #endif /* LISHP_STATE_H */
