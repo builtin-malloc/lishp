@@ -1,10 +1,8 @@
-#ifndef LISHP_STATE_H
-#define LISHP_STATE_H
+#ifndef LISHP_GC_H
+#define LISHP_GC_H
 
 #include "lishp_alloc.h"
 #include "lishp_config.h"
-#include "lishp_diag.h"
-#include "lishp_gc.h"
 
 #include <assert.h>
 
@@ -12,55 +10,32 @@
 /*                                   TYPES                                   */
 /*****************************************************************************/
 
-typedef struct LISHP_State LISHP_State;
+typedef struct LISHP_GC LISHP_GC;
 
-struct LISHP_State
+struct LISHP_GC
 {
-  LISHP_Alloc*  alloc;
-  LISHP_Config* config;
-  LISHP_Diag*   diag;
-  LISHP_GC*     gc;
+  LISHP_Alloc* alloc;
+  LISHP_Alloc  as_alloc;
 };
 
 /*****************************************************************************/
 /*                                 LIFE CYCLE                                */
 /*****************************************************************************/
 
-[[nodiscard]] LISHP_State*
-LISHP_State_Create(LISHP_Alloc* alloc);
+[[nodiscard]] LISHP_GC*
+LISHP_GC_Create(LISHP_Alloc* alloc, const LISHP_Config* config);
 void
-LISHP_State_Destroy(LISHP_State* state);
+LISHP_GC_Destroy(LISHP_GC* gc);
 
 /*****************************************************************************/
 /*                                 ACCESSORS                                 */
 /*****************************************************************************/
 
 [[nodiscard, maybe_unused]] static inline LISHP_Alloc*
-LISHP_State_GetAlloc(LISHP_State* state)
+LISHP_GC_AsAlloc(LISHP_GC* gc)
 {
-  assert(state);
-  return state->alloc;
+  assert(gc);
+  return &gc->as_alloc;
 }
 
-[[nodiscard, maybe_unused]] static inline LISHP_Config*
-LISHP_State_GetConfig(LISHP_State* state)
-{
-  assert(state);
-  return state->config;
-}
-
-[[nodiscard, maybe_unused]] static inline LISHP_Diag*
-LISHP_State_GetDiag(LISHP_State* state)
-{
-  assert(state);
-  return state->diag;
-}
-
-[[nodiscard, maybe_unused]] static inline LISHP_GC*
-LISHP_State_GetGC(LISHP_State* state)
-{
-  assert(state);
-  return state->gc;
-}
-
-#endif /* LISHP_STATE_H */
+#endif /* LISHP_GC_H */

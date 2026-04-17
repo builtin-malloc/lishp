@@ -2,6 +2,7 @@
 #include "lishp/lishp_alloc.h"
 #include "lishp/lishp_config.h"
 #include "lishp/lishp_diag.h"
+#include "lishp/lishp_gc.h"
 
 #include <string.h>
 
@@ -30,6 +31,9 @@ LISHP_State_Create(LISHP_Alloc* alloc)
   state->diag = LISHP_Diag_Create(alloc, state->config);
   if (!state->diag) goto alloc_failure;
 
+  state->gc = LISHP_GC_Create(alloc, state->config);
+  if (!state->gc) goto alloc_failure;
+
   return state;
 
 alloc_failure:
@@ -42,6 +46,7 @@ void
 LISHP_State_Destroy(LISHP_State* state)
 {
   if (!state) return;
+  LISHP_GC_Destroy(state->gc);
   LISHP_Diag_Destroy(state->diag);
   LISHP_Config_Destroy(state->config);
   LISHP_Alloc_Free(state->alloc, state);
