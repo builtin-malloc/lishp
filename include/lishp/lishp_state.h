@@ -3,6 +3,7 @@
 
 #include "lishp_alloc.h"
 #include "lishp_config.h"
+#include "lishp_diag.h"
 
 #include <assert.h>
 
@@ -16,6 +17,7 @@ struct LISHP_State
 {
   LISHP_Allocator* alloc;
   LISHP_Config*    config;
+  LISHP_Diag*      diag;
 };
 
 /*****************************************************************************/
@@ -43,6 +45,13 @@ LISHP_State_GetConfig(LISHP_State* state)
 {
   assert(state);
   return state->config;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Diag*
+LISHP_State_GetDiag(LISHP_State* state)
+{
+  assert(state);
+  return state->diag;
 }
 
 #endif /* LISHP_STATE_H */
