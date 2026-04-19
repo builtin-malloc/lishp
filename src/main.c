@@ -1,4 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
+
+#include <readline/history.h>
+#include <readline/readline.h>
 
 #include "lishp/lishp_alloc.h"
 #include "lishp/lishp_context.h"
@@ -15,6 +19,19 @@ main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
   if (!runtime || !context) {
     exit_code = EXIT_FAILURE;
     goto exit;
+  }
+
+  while (true) {
+    auto line = readline("> ");
+    if (!line) continue;
+
+    if (*line) {
+      add_history(line);
+    }
+
+    printf("=> %s\n", line);
+
+    free(line);
   }
 
 exit:
