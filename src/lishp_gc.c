@@ -1,5 +1,6 @@
 #include "lishp/lishp_gc.h"
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_diag.h"
 
 #include <assert.h>
 
@@ -38,7 +39,7 @@ LISHP_GC_Create(LISHP_Alloc* alloc, const LISHP_Config* config)
 
   LISHP_GC* gc = LISHP_Alloc_Malloc(alloc, sizeof(*gc));
   if (!gc) {
-    // TODO: Print Error
+    LISHP_Diag_WriteError(nullptr, "Failed to allocate garbage collector");
     return nullptr;
   }
 
@@ -48,7 +49,7 @@ LISHP_GC_Create(LISHP_Alloc* alloc, const LISHP_Config* config)
   gc->as_alloc.free_func    = nullptr;
   gc->as_alloc.realloc_func = LISHP_GC_Realloc;
 
-  return nullptr;
+  return gc;
 }
 
 void

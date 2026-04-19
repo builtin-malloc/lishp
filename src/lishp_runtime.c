@@ -1,6 +1,7 @@
 #include "lishp/lishp_runtime.h"
 #include "lishp/lishp_alloc.h"
 #include "lishp/lishp_config.h"
+#include "lishp/lishp_diag.h"
 #include "lishp/lishp_gc.h"
 #include "lishp/lishp_symtab.h"
 
@@ -21,6 +22,8 @@ LISHP_Runtime_Create(LISHP_Alloc* alloc)
 
   memset(rt, 0, sizeof(*rt));
 
+  rt->alloc = alloc;
+
   rt->config = LISHP_Config_Create(alloc);
   if (!rt->config) goto failure;
 
@@ -33,7 +36,7 @@ LISHP_Runtime_Create(LISHP_Alloc* alloc)
   return rt;
 
 failure:
-  // TODO: Print Error
+  LISHP_Diag_WriteFatal(nullptr, "Failed to allocate global runtime");
   LISHP_Runtime_Destroy(rt);
   return nullptr;
 }

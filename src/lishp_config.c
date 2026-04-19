@@ -1,5 +1,6 @@
 #include "lishp/lishp_config.h"
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_diag.h"
 
 #include <assert.h>
 
@@ -14,7 +15,7 @@ LISHP_Config_Create(LISHP_Alloc* alloc)
 
   LISHP_Config* config = LISHP_Alloc_Malloc(alloc, sizeof(*config));
   if (!config) {
-    // TODO: Print Error
+    LISHP_Diag_WriteError(nullptr, "Failed to allocate global config");
     return nullptr;
   }
 

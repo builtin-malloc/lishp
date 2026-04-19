@@ -42,7 +42,8 @@ LISHP_Context_Create(LISHP_Runtime* runtime)
   return ctx;
 
 failure:
-  // TODO: Print Error
+  LISHP_Diag_WriteFatal(ctx ? ctx->diag : nullptr,
+                        "Failed to allocate thread-local context");
   LISHP_Context_Destroy(ctx);
   return nullptr;
 }
