@@ -27,6 +27,8 @@ LISHP_Context_Create(LISHP_Runtime* runtime)
 
   memset(ctx, 0, sizeof(*ctx));
 
+  ctx->runtime = runtime;
+
   ctx->diag = LISHP_Diag_Create(alloc, config);
   if (!ctx->diag) goto failure;
 

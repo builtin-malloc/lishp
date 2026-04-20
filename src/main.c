@@ -21,13 +21,16 @@ main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     goto exit;
   }
 
-  while (true) {
+  bool running = true;
+  while (running) {
     auto line = readline("> ");
     if (!line) continue;
 
     if (*line) {
       add_history(line);
     }
+
+    running = strcmp(line, ":quit") != 0;
 
     printf("=> %s\n", line);
 
