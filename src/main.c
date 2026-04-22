@@ -5,6 +5,7 @@
 #include <readline/readline.h>
 
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_api.h"
 #include "lishp/lishp_context.h"
 #include "lishp/lishp_runtime.h"
 
@@ -30,9 +31,11 @@ main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
       add_history(line);
     }
 
+    [[maybe_unused]] auto form = LISHP_Read(context, line);
+
     running = strcmp(line, ":quit") != 0;
 
-    printf("=> %s\n", line);
+    printf("=> %s, %d\n", line, (int)form);
 
     free(line);
   }
