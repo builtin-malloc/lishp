@@ -98,6 +98,8 @@ union LISHP_Object
 /*****************************************************************************/
 
 void
+LISHP_Object_InitializeNil(LISHP_Object* obj, LISHP_Context* ctx);
+void
 LISHP_Object_InitializeCons(LISHP_Object*  obj,
                             LISHP_Value    car,
                             LISHP_Value    cdr,
@@ -132,9 +134,9 @@ LISHP_Object_InitializeKeyword(LISHP_Object*  obj,
                                LISHP_Context* ctx);
 void
 LISHP_Object_InitializeString(LISHP_Object*  obj,
-                             size_t         len,
-                             const char*    data,
-                             LISHP_Context* ctx);
+                              size_t         len,
+                              const char*    data,
+                              LISHP_Context* ctx);
 
 void
 LISHP_Object_Finalize(LISHP_Object* obj, LISHP_Context* ctx);

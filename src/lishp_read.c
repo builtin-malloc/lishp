@@ -1,5 +1,6 @@
 #include "lishp/lishp_read.h"
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_api.h"
 #include "lishp/lishp_context.h"
 #include "lishp/lishp_diag.h"
 #include "lishp/lishp_value.h"
@@ -143,8 +144,8 @@ LISHP_Reader_ReadAtom(LISHP_Reader* reader, LISHP_Context* ctx)
   LISHP_Diag_WriteInfo(
     LISHP_Context_GetDiag(ctx), "Read atom: %.*s", (int)len, begin);
 
-  // TODO: Actually allocate the value
-  return LISHP_VALUE_INVALID;
+  // TODO: Actually check what type of value we have
+  return LISHP_CreateSymbol(len, begin, ctx);
 }
 
 void

@@ -18,4 +18,31 @@ LISHP_Read(LISHP_Context* ctx, const char* src)
   return LISHP_Reader_Read(LISHP_Context_GetReader(ctx), src, ctx);
 }
 
+/*****************************************************************************/
+/*                                  OBJECTS                                  */
+/*****************************************************************************/
+
+[[nodiscard]] LISHP_Value
+LISHP_CreateNil(LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateCons(LISHP_Value car, LISHP_Value cdr, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateBool(bool value, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateChar(char value, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateFloat(double value, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateBigint(size_t num_legs, const uint32_t* legs, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateRatio(LISHP_Value    numerator,
+                  LISHP_Value    denominator,
+                  LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateSymbol(size_t len, const char* data, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateKeyword(size_t len, const char* data, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_CreateString(size_t len, const char* data, LISHP_Context* ctx);
+
 #endif /* LISHP_API_H */

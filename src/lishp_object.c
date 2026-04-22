@@ -9,6 +9,16 @@
 /*****************************************************************************/
 
 void
+LISHP_Object_InitializeNil(LISHP_Object*                   obj,
+                           [[maybe_unused]] LISHP_Context* ctx)
+{
+  assert(obj);
+  assert(ctx);
+
+  obj->tag = LISHP_OBJECTTAG_NIL;
+}
+
+void
 LISHP_Object_InitializeCons(LISHP_Object*                   obj,
                             LISHP_Value                     car,
                             LISHP_Value                     cdr,

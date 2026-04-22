@@ -1,5 +1,6 @@
 #include "lishp/lishp_gc.h"
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_context.h"
 #include "lishp/lishp_diag.h"
 
 #include <assert.h>
@@ -55,6 +56,11 @@ LISHP_GC_Malloc(LISHP_GC* gc, size_t size, LISHP_Context* ctx)
       abort();
     }
   }
+
+  LISHP_Diag_WriteDebug(LISHP_Context_GetDiag(ctx),
+                        "[GC] Alloc %p (size=%zu)",
+                        (void*)header,
+                        total_size);
 
   header->size  = total_size;
   header->state = LISHP_GC_HEADERSTATE_UNMARKED;
