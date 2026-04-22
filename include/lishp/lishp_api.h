@@ -33,7 +33,10 @@ LISHP_CreateChar(char value, LISHP_Context* ctx);
 [[nodiscard]] LISHP_Value
 LISHP_CreateFloat(double value, LISHP_Context* ctx);
 [[nodiscard]] LISHP_Value
-LISHP_CreateBigint(size_t num_legs, const uint32_t* legs, LISHP_Context* ctx);
+LISHP_CreateBigint(int             sign,
+                   size_t          num_legs,
+                   const uint32_t* legs,
+                   LISHP_Context*  ctx);
 [[nodiscard]] LISHP_Value
 LISHP_CreateRatio(LISHP_Value    numerator,
                   LISHP_Value    denominator,

@@ -65,6 +65,16 @@ LISHP_Reader_GetCurChar(const LISHP_Reader* reader)
   return *reader->cursor;
 }
 
+[[nodiscard]] LISHP_Reader_CharClass
+LISHP_Reader_CharToCharClass(char c);
+
+[[nodiscard, maybe_unused]] static inline LISHP_Reader_CharClass
+LISHP_Reader_GetCurCharClass(const LISHP_Reader* reader)
+{
+  assert(reader);
+  return LISHP_Reader_CharToCharClass(LISHP_Reader_GetCurChar(reader));
+}
+
 [[maybe_unused]] static inline void
 LISHP_Reader_Advance(LISHP_Reader* reader)
 {
@@ -72,9 +82,6 @@ LISHP_Reader_Advance(LISHP_Reader* reader)
   if (LISHP_Reader_IsDone(reader)) return;
   reader->cursor += 1;
 }
-
-[[nodiscard]] LISHP_Reader_CharClass
-LISHP_Reader_GetCurCharClass(const LISHP_Reader* reader);
 
 /*****************************************************************************/
 /*                                  HELPERS                                  */

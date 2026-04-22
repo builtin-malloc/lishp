@@ -3,10 +3,12 @@
 #include "lishp/lishp_api.h"
 #include "lishp/lishp_context.h"
 #include "lishp/lishp_diag.h"
+#include "lishp/lishp_prelude.h"
 #include "lishp/lishp_value.h"
 
 #include <assert.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*****************************************************************************/
@@ -65,11 +67,8 @@ LISHP_Reader_Read(LISHP_Reader* reader, const char* src, LISHP_Context* ctx)
 /*****************************************************************************/
 
 [[nodiscard]] LISHP_Reader_CharClass
-LISHP_Reader_GetCurCharClass(const LISHP_Reader* reader)
+LISHP_Reader_CharToCharClass(char c)
 {
-  assert(reader);
-  auto c = LISHP_Reader_GetCurChar(reader);
-
   if (c == '\0') return LISHP_READER_CHARCLASS_EOF;
   if (c == ';') return LISHP_READER_CHARCLASS_LINECOMMENT_START;
   if (isspace(c)) return LISHP_READER_CHARCLASS_WHITESPACE;
@@ -126,25 +125,72 @@ LISHP_Reader_ReadValue(LISHP_Reader* reader, LISHP_Context* ctx)
   }
 }
 
+static inline bool
+LISHP_Reader_CharMatchesSymbol(char cur, size_t idx, const char* symb)
+{
+  const size_t len = strlen(symb);
+  if (idx >= len) return false;
+  return symb[idx] == cur;
+}
+
 [[nodiscard]] LISHP_Value
 LISHP_Reader_ReadAtom(LISHP_Reader* reader, LISHP_Context* ctx)
 {
   assert(reader);
   assert(ctx);
 
-  auto begin = reader->cursor;
+  auto cur = LISHP_Reader_GetCurChar(reader);
 
-  while (LISHP_Reader_GetCurCharClass(reader) == LISHP_READER_CHARCLASS_ATOM) {
+  auto is_kw        = cur == ':';
+  auto is_true_sym  = true;
+  auto is_false_sym = true;
+  auto is_nil_sym   = true;
+
+  auto     has_sign    = cur == '+' || cur == '-';
+  auto     sign        = cur == '-' ? -1 : +1;
+  auto     any_digits  = isnumber(cur);
+  auto     only_digits = has_sign || isnumber(cur);
+  uint32_t int_val     = 0;
+
+  auto   begin = reader->cursor;
+  size_t len   = 0;
+
+  while (LISHP_Reader_CharToCharClass(cur) == LISHP_READER_CHARCLASS_ATOM) {
+    is_true_sym  &= LISHP_Reader_CharMatchesSymbol(cur, len, "true");
+    is_false_sym &= LISHP_Reader_CharMatchesSymbol(cur, len, "false");
+    is_nil_sym   &= LISHP_Reader_CharMatchesSymbol(cur, len, "nil");
+
+    any_digits  |= isdigit(cur);
+    only_digits &= (!has_sign || len > 0) && isdigit(cur);
+    if (isdigit(cur)) {
+      auto digit    = cur - '0';
+      auto overflow = int_val > ((UINT32_MAX - digit) / 10);
+
+      if (overflow) {
+        // TODO: Raise error condition using ctx
+        abort();
+      }
+
+      int_val *= 10;
+      int_val += (cur - '0');
+    }
+
     LISHP_Reader_Advance(reader);
+    cur  = LISHP_Reader_GetCurChar(reader);
+    len += 1;
   }
 
-  auto end = reader->cursor;
-  auto len = end - begin;
+  is_true_sym  &= (len == strlen("true"));
+  is_false_sym &= (len == strlen("false"));
+  is_nil_sym   &= (len == strlen("nil"));
 
-  LISHP_Diag_WriteInfo(
-    LISHP_Context_GetDiag(ctx), "Read atom: %.*s", (int)len, begin);
+  if (is_kw) return LISHP_CreateKeyword(len, begin, ctx);
+  if (is_true_sym) return LISHP_CreateBool(true, ctx);
+  if (is_false_sym) return LISHP_CreateBool(false, ctx);
+  if (is_nil_sym) return LISHP_CreateNil(ctx);
+  if (any_digits && only_digits)
+    return LISHP_CreateBigint(sign, 1, &int_val, ctx);
 
-  // TODO: Actually check what type of value we have
   return LISHP_CreateSymbol(len, begin, ctx);
 }
 

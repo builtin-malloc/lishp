@@ -87,7 +87,10 @@ LISHP_CreateFloat(double value, LISHP_Context* ctx)
 }
 
 [[nodiscard]] LISHP_Value
-LISHP_CreateBigint(size_t num_legs, const uint32_t* legs, LISHP_Context* ctx)
+LISHP_CreateBigint(int             sign,
+                   size_t          num_legs,
+                   const uint32_t* legs,
+                   LISHP_Context*  ctx)
 {
   assert(num_legs > 0);
   assert(legs);
@@ -98,7 +101,7 @@ LISHP_CreateBigint(size_t num_legs, const uint32_t* legs, LISHP_Context* ctx)
   auto obj  = LISHP_GC_Malloc(gc, size, ctx);
 
   assert(obj);
-  LISHP_Object_InitializeBigint(obj, num_legs, legs, ctx);
+  LISHP_Object_InitializeBigint(obj, sign, num_legs, legs, ctx);
 
   return LISHP_Value_MakeBoxed(obj);
 }

@@ -56,6 +56,7 @@ typedef struct LISHP_Object_Float
 typedef struct LISHP_Object_Bigint
 {
   LISHP_ObjectTag tag;
+  int8_t          sign;
   size_t          num_legs;
   uint32_t        legs[];
 } LISHP_Object_Bigint;
@@ -114,6 +115,7 @@ LISHP_Object_InitializeFloat(LISHP_Object*  obj,
                              LISHP_Context* ctx);
 void
 LISHP_Object_InitializeBigint(LISHP_Object*   obj,
+                              int8_t          sign,
                               size_t          num_legs,
                               const uint32_t* legs,
                               LISHP_Context*  ctx);

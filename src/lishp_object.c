@@ -70,6 +70,7 @@ LISHP_Object_InitializeFloat(LISHP_Object*                   obj,
 
 void
 LISHP_Object_InitializeBigint(LISHP_Object*                   obj,
+                              int8_t                          sign,
                               size_t                          num_legs,
                               const uint32_t*                 legs,
                               [[maybe_unused]] LISHP_Context* ctx)
@@ -78,6 +79,7 @@ LISHP_Object_InitializeBigint(LISHP_Object*                   obj,
   assert(ctx);
 
   obj->as_bigint.tag      = LISHP_OBJECTTAG_BIGINT;
+  obj->as_bigint.sign     = sign;
   obj->as_bigint.num_legs = num_legs;
   memcpy(obj->as_bigint.legs, legs, num_legs * sizeof(*legs));
 }
