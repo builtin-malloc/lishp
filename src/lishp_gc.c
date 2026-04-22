@@ -3,29 +3,7 @@
 #include "lishp/lishp_diag.h"
 
 #include <assert.h>
-
-/*****************************************************************************/
-/*                            ALLOC IMPLEMENTATION                           */
-/*****************************************************************************/
-
-static void*
-LISHP_GC_Malloc(void* ctx, size_t size)
-{
-  assert(ctx);
-  assert(size > 0);
-  // TODO: Implement this
-  return nullptr;
-}
-
-static void*
-LISHP_GC_Realloc(void* ctx, void* ptr, size_t size)
-{
-  assert(ctx);
-  assert(ptr);
-  assert(size > 0);
-  // TODO: Implement this
-  return nullptr;
-}
+#include <stdlib.h>
 
 /*****************************************************************************/
 /*                                 LIFE CYCLE                                */
@@ -43,11 +21,7 @@ LISHP_GC_Create(LISHP_Alloc* alloc, const LISHP_Config* config)
     return nullptr;
   }
 
-  gc->alloc                 = alloc;
-  gc->as_alloc.context      = gc;
-  gc->as_alloc.malloc_func  = LISHP_GC_Malloc;
-  gc->as_alloc.free_func    = nullptr;
-  gc->as_alloc.realloc_func = LISHP_GC_Realloc;
+  gc->alloc = alloc;
 
   return gc;
 }
@@ -57,4 +31,64 @@ LISHP_GC_Destroy(LISHP_GC* gc)
 {
   if (!gc) return;
   LISHP_Alloc_Free(gc->alloc, gc);
+}
+
+/*****************************************************************************/
+/*                                    API                                    */
+/*****************************************************************************/
+
+[[nodiscard]] LISHP_Object*
+LISHP_GC_Malloc(LISHP_GC* gc, size_t size, LISHP_Context* ctx)
+{
+  assert(gc);
+  assert(ctx);
+  assert(size > 0);
+
+  size_t total_size = sizeof(LISHP_GC_Header) + size;
+
+  LISHP_GC_Header* header = LISHP_Alloc_Malloc(gc->alloc, total_size);
+  if (!header) {
+    LISHP_GC_Run(gc, ctx);
+    header = LISHP_Alloc_Malloc(gc->alloc, total_size);
+    if (!header) {
+      // TODO: Raise error condition via ctx
+      abort();
+    }
+  }
+
+  header->size  = total_size;
+  header->state = LISHP_GC_HEADERSTATE_UNMARKED;
+  header->next  = nullptr;
+
+  LISHP_GC_TrackObject(gc, header, ctx);
+  return LISHP_GC_Header_ToObject(header);
+}
+
+void
+LISHP_GC_Run(LISHP_GC* gc, LISHP_Context* ctx)
+{
+  assert(gc);
+  assert(ctx);
+}
+
+/*****************************************************************************/
+/*                                  HELPERS                                  */
+/*****************************************************************************/
+
+void
+LISHP_GC_TrackObject(LISHP_GC* gc, LISHP_GC_Header* header, LISHP_Context* ctx)
+{
+  assert(gc);
+  assert(header);
+  assert(ctx);
+}
+
+void
+LISHP_GC_UntrackObject(LISHP_GC*        gc,
+                       LISHP_GC_Header* header,
+                       LISHP_Context*   ctx)
+{
+  assert(gc);
+  assert(header);
+  assert(ctx);
 }
