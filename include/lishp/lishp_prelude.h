@@ -4,4 +4,6 @@
 typedef struct LISHP_Runtime LISHP_Runtime;
 typedef struct LISHP_Context LISHP_Context;
 
+typedef union LISHP_Object LISHP_Object;
+
 #endif /* LISHP_PRELUDE_H */

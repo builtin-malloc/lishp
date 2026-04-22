@@ -1,7 +1,7 @@
 #ifndef LISHP_VALUE_H
 #define LISHP_VALUE_H
 
-#include "lishp_object.h"
+#include "lishp_prelude.h"
 
 #include <assert.h>
 #include <stddef.h>
