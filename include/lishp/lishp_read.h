@@ -27,6 +27,7 @@ typedef enum LISHP_Reader_CharClass
   LISHP_READER_CHARCLASS_EOF,
   LISHP_READER_CHARCLASS_WHITESPACE,
   LISHP_READER_CHARCLASS_LINECOMMENT_START,
+  LISHP_READER_CHARCLASS_ATOM,
 } LISHP_Reader_CharClass;
 
 /*****************************************************************************/
@@ -88,12 +89,14 @@ LISHP_Reader_Reset(LISHP_Reader* reader, const char* src);
 
 [[nodiscard]] LISHP_Value
 LISHP_Reader_ReadValue(LISHP_Reader* reader, LISHP_Context* ctx);
+[[nodiscard]] LISHP_Value
+LISHP_Reader_ReadAtom(LISHP_Reader* reader, LISHP_Context* ctx);
 
 void
-LISHP_Reader_SkipComment(LISHP_Reader* reader);
+LISHP_Reader_SkipComment(LISHP_Reader* reader, LISHP_Context* ctx);
 void
-LISHP_Reader_SkipWhitespace(LISHP_Reader* reader);
+LISHP_Reader_SkipWhitespace(LISHP_Reader* reader, LISHP_Context* ctx);
 void
-LISHP_Reader_SkipCommentAndWhitespace(LISHP_Reader* reader);
+LISHP_Reader_SkipCommentAndWhitespace(LISHP_Reader* reader, LISHP_Context* ctx);
 
 #endif /* LISHP_READ_H */
