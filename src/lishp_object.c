@@ -1,5 +1,6 @@
 #include "lishp/lishp_object.h"
 #include "lishp/lishp_prelude.h"
+#include "lishp/lishp_hash.h"
 
 #include <assert.h>
 #include <string.h>
@@ -106,7 +107,7 @@ LISHP_Object_InitializeStringlike(struct LISHP_Object_Stringlike* obj,
                                   [[maybe_unused]] LISHP_Context* ctx)
 {
   obj->tag    = tag;
-  obj->hash   = 0; // TODO
+  obj->hash   = LISHP_Hash_fnv1a(len, data);
   obj->length = len;
   memcpy(obj->data, data, len);
   obj->data[len] = '\0';
