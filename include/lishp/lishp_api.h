@@ -4,6 +4,7 @@
 #include "lishp_context.h"
 #include "lishp_prelude.h"
 #include "lishp_read.h"
+#include "lishp_write.h"
 
 #include <assert.h>
 
@@ -16,6 +17,14 @@ LISHP_Read(LISHP_Context* ctx, const char* src)
 {
   assert(ctx);
   return LISHP_Reader_Read(LISHP_Context_GetReader(ctx), src, ctx);
+}
+
+[[nodiscard, maybe_unused]] static inline const char*
+LISHP_Write(LISHP_Context* ctx, LISHP_Value value)
+{
+  assert(ctx);
+  auto mode = LISHP_WRITEMODE_RAW;
+  return LISHP_Writer_Write(LISHP_Context_GetWriter(ctx), value, mode, ctx);
 }
 
 /*****************************************************************************/

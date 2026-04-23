@@ -28,6 +28,11 @@ typedef enum LISHP_ObjectTag
   LISHP_OBJECTTAG_STRING,
 } LISHP_ObjectTag;
 
+typedef struct LISHP_Object_Nil
+{
+  LISHP_ObjectTag tag;
+} LISHP_Object_Nil;
+
 typedef struct LISHP_Object_Cons
 {
   LISHP_ObjectTag tag;
@@ -83,6 +88,7 @@ typedef struct LISHP_Object_Stringlike LISHP_Object_String;
 union LISHP_Object
 {
   LISHP_ObjectTag      tag;
+  LISHP_Object_Nil     as_nil;
   LISHP_Object_Cons    as_cons;
   LISHP_Object_Bool    as_bool;
   LISHP_Object_Char    as_char;
@@ -142,5 +148,59 @@ LISHP_Object_InitializeString(LISHP_Object*  obj,
 
 void
 LISHP_Object_Finalize(LISHP_Object* obj, LISHP_Context* ctx);
+
+/*****************************************************************************/
+/*                                 CONVERSION                                */
+/*****************************************************************************/
+
+#define LISHP_OBJECT_CONVERSION__TEMPLATE(SmallName, BigName, ScreamName)      \
+  [[nodiscard]] static inline bool LISHP_Object_Is##BigName(                   \
+    const LISHP_Object* obj)                                                   \
+  {                                                                            \
+    assert(obj);                                                               \
+    return obj->tag == LISHP_OBJECTTAG_##ScreamName;                           \
+  }                                                                            \
+                                                                               \
+  [[nodiscard]] static inline const LISHP_Object_##BigName*                    \
+    LISHP_Object_As##BigName(const LISHP_Object* obj)                          \
+  {                                                                            \
+    assert(LISHP_Object_Is##BigName(obj));                                     \
+    return &obj->as_##SmallName;                                               \
+  }                                                                            \
+                                                                               \
+  [[nodiscard]] static inline LISHP_Object_##BigName*                          \
+    LISHP_Object_As##BigName##_mut(LISHP_Object* obj)                          \
+  {                                                                            \
+    assert(LISHP_Object_Is##BigName(obj));                                     \
+    return &obj->as_##SmallName;                                               \
+  }                                                                            \
+                                                                               \
+  [[nodiscard, maybe_unused]] static inline const LISHP_Object_##BigName*      \
+    LISHP_Object_Isa##BigName(const LISHP_Object* obj)                         \
+  {                                                                            \
+    if (LISHP_Object_Is##BigName(obj)) return LISHP_Object_As##BigName(obj);   \
+    return nullptr;                                                            \
+  }                                                                            \
+                                                                               \
+  [[nodiscard, maybe_unused]] static inline LISHP_Object_##BigName*            \
+    LISHP_Object_Isa##BigName##_mut(LISHP_Object* obj)                         \
+  {                                                                            \
+    if (LISHP_Object_Is##BigName(obj))                                         \
+      return LISHP_Object_As##BigName##_mut(obj);                              \
+    return nullptr;                                                            \
+  }
+
+LISHP_OBJECT_CONVERSION__TEMPLATE(nil, Nil, NIL)
+LISHP_OBJECT_CONVERSION__TEMPLATE(cons, Cons, CONS)
+LISHP_OBJECT_CONVERSION__TEMPLATE(bool, Bool, BOOL)
+LISHP_OBJECT_CONVERSION__TEMPLATE(char, Char, CHAR)
+LISHP_OBJECT_CONVERSION__TEMPLATE(float, Float, FLOAT)
+LISHP_OBJECT_CONVERSION__TEMPLATE(bigint, Bigint, BIGINT)
+LISHP_OBJECT_CONVERSION__TEMPLATE(ratio, Ratio, RATIO)
+LISHP_OBJECT_CONVERSION__TEMPLATE(symbol, Symbol, SYMBOL)
+LISHP_OBJECT_CONVERSION__TEMPLATE(keyword, Keyword, KEYWORD)
+LISHP_OBJECT_CONVERSION__TEMPLATE(string, String, STRING)
+
+#undef LISHP_OBJECT_CONVERSION__TEMPLATE
 
 #endif /* LISHP_OBJECT_H */

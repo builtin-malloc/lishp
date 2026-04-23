@@ -89,4 +89,17 @@ LISHP_Value_MakeBoxed(LISHP_Object* obj)
   return (LISHP_Value)obj;
 }
 
+[[nodiscard]] static inline bool
+LISHP_Value_IsBoxed(LISHP_Value value)
+{
+  return (value & LISHP_VALUE_UNBOXED_MASK) == 0;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Object*
+LISHP_Value_AsBoxed(LISHP_Value value)
+{
+  assert(LISHP_Value_IsBoxed(value));
+  return (LISHP_Object*)value;
+}
+
 #endif /* LISHP_VALUE_H */
