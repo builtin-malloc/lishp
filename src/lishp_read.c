@@ -184,7 +184,7 @@ LISHP_Reader_ReadAtom(LISHP_Reader* reader, LISHP_Context* ctx)
   is_false_sym &= (len == strlen("false"));
   is_nil_sym   &= (len == strlen("nil"));
 
-  if (is_kw) return LISHP_CreateKeyword(len, begin, ctx);
+  if (is_kw) return LISHP_CreateKeyword(len - 1, begin + 1, ctx);
   if (is_true_sym) return LISHP_CreateBool(true, ctx);
   if (is_false_sym) return LISHP_CreateBool(false, ctx);
   if (is_nil_sym) return LISHP_CreateNil(ctx);
