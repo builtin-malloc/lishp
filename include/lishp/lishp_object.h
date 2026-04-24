@@ -203,4 +203,13 @@ LISHP_OBJECT_CONVERSION__TEMPLATE(string, String, STRING)
 
 #undef LISHP_OBJECT_CONVERSION__TEMPLATE
 
+/*****************************************************************************/
+/*                                 OPERATIONS                                */
+/*****************************************************************************/
+
+[[nodiscard]] bool
+LISHP_Object_AreEqual(const LISHP_Object* a, const LISHP_Object* b);
+[[nodiscard]] uint64_t
+LISHP_Object_GetHash(const LISHP_Object* obj);
+
 #endif /* LISHP_OBJECT_H */

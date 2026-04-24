@@ -102,4 +102,13 @@ LISHP_Value_AsBoxed(LISHP_Value value)
   return (LISHP_Object*)value;
 }
 
+/*****************************************************************************/
+/*                              BASIC OPERATIONS                             */
+/*****************************************************************************/
+
+[[nodiscard]] uint64_t
+LISHP_Value_GetHash(LISHP_Value val);
+[[nodiscard]] bool
+LISHP_Value_AreEqual(LISHP_Value a, LISHP_Value b);
+
 #endif /* LISHP_VALUE_H */
