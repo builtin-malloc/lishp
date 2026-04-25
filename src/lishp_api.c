@@ -3,6 +3,7 @@
 #include "lishp/lishp_gc.h"
 #include "lishp/lishp_object.h"
 #include "lishp/lishp_prelude.h"
+#include "lishp/lishp_symtab.h"
 #include "lishp/lishp_value.h"
 
 #include <assert.h>
@@ -129,14 +130,8 @@ LISHP_CreateSymbol(size_t len, const char* data, LISHP_Context* ctx)
   assert(data);
   assert(ctx);
 
-  auto gc   = LISHP_Context_GetGC(ctx);
-  auto size = sizeof(LISHP_Object_Symbol) + (len + 1) * sizeof(*data);
-  auto obj  = LISHP_GC_Malloc(gc, size, ctx);
-
-  assert(obj);
-  LISHP_Object_InitializeSymbol(obj, len, data, ctx);
-
-  return LISHP_Value_MakeBoxed(obj);
+  auto symtab = LISHP_Context_GetSymtab(ctx);
+  return LISHP_Symbtab_InternSymbol(symtab, len, data, ctx);
 }
 
 [[nodiscard]] LISHP_Value
@@ -145,14 +140,8 @@ LISHP_CreateKeyword(size_t len, const char* data, LISHP_Context* ctx)
   assert(data);
   assert(ctx);
 
-  auto gc   = LISHP_Context_GetGC(ctx);
-  auto size = sizeof(LISHP_Object_Keyword) + (len + 1) * sizeof(*data);
-  auto obj  = LISHP_GC_Malloc(gc, size, ctx);
-
-  assert(obj);
-  LISHP_Object_InitializeKeyword(obj, len, data, ctx);
-
-  return LISHP_Value_MakeBoxed(obj);
+  auto symtab = LISHP_Context_GetSymtab(ctx);
+  return LISHP_Symbtab_InternKeyword(symtab, len, data, ctx);
 }
 
 [[nodiscard]] LISHP_Value

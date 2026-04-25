@@ -1,9 +1,11 @@
 #include "lishp/lishp_hash.h"
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_diag.h"
 #include "lishp/lishp_prelude.h"
 #include "lishp/lishp_value.h"
 
 #include <assert.h>
+#include <inttypes.h>
 #include <string.h>
 
 /*****************************************************************************/
@@ -245,6 +247,36 @@ LISHP_HashMap_Contains(const LISHP_HashMap* map, LISHP_Value key)
   assert(map);
   assert(key != LISHP_VALUE_INVALID);
   return LISHP_HashMap_GetEntry(map, key) != nullptr;
+}
+
+[[nodiscard]] LISHP_Value
+LISHP_HashMap_FindByHash(LISHP_HashMap* map,
+                         uint64_t       hash,
+                         bool           (*pred)(LISHP_Value key, void* ctx),
+                         void*          ctx)
+{
+  // TODO: This code is now duplicated with the code from the Get functions.
+  //       I am not sure if I want to just use this function in the get
+  //       functions because of the predicate indirection.
+
+  assert(map);
+  assert(pred);
+
+  for (size_t i = 0; i < map->max_entries; ++i) {
+    auto index = (hash + i) % map->max_entries;
+    auto entry = &map->entries[index];
+
+    switch (entry->state) {
+      case LISHP_HASHENTRY_STATE_TAKEN:
+        if (LISHP_Value_GetHash(entry->key) == hash && pred(entry->key, ctx))
+          return entry->key;
+        break;
+      case LISHP_HASHENTRY_STATE_FREE   : return LISHP_VALUE_INVALID;
+      case LISHP_HASHENTRY_STATE_DELETED: break;
+    }
+  }
+
+  return LISHP_VALUE_INVALID;
 }
 
 /*****************************************************************************/

@@ -97,6 +97,12 @@ LISHP_HashMap_Delete(LISHP_HashMap* map, LISHP_Value key);
 [[nodiscard]] bool
 LISHP_HashMap_Contains(const LISHP_HashMap* map, LISHP_Value key);
 
+[[nodiscard]] LISHP_Value
+LISHP_HashMap_FindByHash(LISHP_HashMap* map,
+                         uint64_t       hash,
+                         bool           (*pred)(LISHP_Value key, void* ctx),
+                         void*          ctx);
+
 [[maybe_unused]] static inline LISHP_Value
 LISHP_HashSet_Insert(LISHP_HashSet* set, LISHP_Value key)
 {
@@ -119,6 +125,15 @@ LISHP_HashMap_Get(LISHP_HashMap* map, LISHP_Value key)
   auto entry = LISHP_HashMap_GetEntry(map, key);
   if (entry) return entry->value;
   return LISHP_VALUE_INVALID;
+}
+
+[[nodiscard, maybe_unused]] static inline LISHP_Value
+LISHP_HashSet_FindByHash(LISHP_HashSet* set,
+                         uint64_t       hash,
+                         bool           (*pred)(LISHP_Value key, void* ctx),
+                         void*          ctx)
+{
+  return LISHP_HashMap_FindByHash(set, hash, pred, ctx);
 }
 
 /*****************************************************************************/
