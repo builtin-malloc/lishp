@@ -12,6 +12,11 @@ BINOBJ := $(BINSRC:@SRCDIR@/%.c=@OBJDIR@/%.o)
 BINDEP := $(BINOBJ:.o=.d)
 BIN    := @BINDIR@/lishp
 
+TESTSRC := $(wildcard @TESTDIR@/*.c)
+TESTOBJ := $(TESTSRC:@TESTDIR@/%.c=@OBJDIR@/%.o)
+TESTDEP := $(TESTOBJ:.o=.d)
+TEST    := @BINDIR@/test_lishp
+
 ###############################################################################
 #                                   TARGETS                                   #
 ###############################################################################
@@ -20,18 +25,23 @@ BIN    := @BINDIR@/lishp
 
 .PHONY: build
 
-build: $(BIN)
+build: $(BIN) $(TEST)
 
 $(BIN): $(BINOBJ) $(LIB)
+	@CCLD@ -o $@ $(filter %.o,$^) @LDFLAGS@ -llishp
+$(TEST): $(TESTOBJ) $(LIB)
 	@CCLD@ -o $@ $(filter %.o,$^) @LDFLAGS@ -llishp
 $(LIB): $(LIBOBJ)
 	@AR@ @ARFLAGS@ $@ $(filter %.o,$^)
 
-@OBJDIR@/%.o: @SRCDIR@/%.c
+$(BINOBJ) $(LIBOBJ): @OBJDIR@/%.o: @SRCDIR@/%.c
+	@CC@ -o $@ -c $< @CFLAGS@
+$(TESTOBJ): @OBJDIR@/%.o: @TESTDIR@/%.c
 	@CC@ -o $@ -c $< @CFLAGS@
 
 -include $(LIBDEP)
 -include $(BINDEP)
+-include $(TESTDEP)
 
 # CLEAN #######################################################################
 
@@ -44,6 +54,9 @@ clean:
 	rm -f $(LIB)
 	rm -f $(LIBOBJ)
 	rm -f $(LIBDEP)
+	rm -f $(TEST)
+	rm -f $(TESTOBJ)
+	rm -f $(TESTDEP)
 
 distclean:
 	rm -rf @BINDIR@
