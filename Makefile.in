@@ -48,6 +48,8 @@ clean:
 distclean:
 	rm -rf @BINDIR@
 	rm -rf @OBJDIR@
+	rm -f @MAKEFILE@
+	rm -f @CLANGD@
 
 # CONFIGURE ###################################################################
 
