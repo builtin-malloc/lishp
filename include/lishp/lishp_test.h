@@ -3,6 +3,7 @@
 
 #include "lishp/lishp_alloc.h"
 #include "lishp/lishp_prelude.h"
+#include "lishp/lishp_test__macos.h"
 
 #include <assert.h>
 
@@ -11,15 +12,26 @@
 /*****************************************************************************/
 
 #define LISHP_TEST(Suite, Name)                                                \
-  [[maybe_unused]] static void LISH_TEST__##Suite##__##Name(                   \
+  static void LISHP_TEST_REGISTER__##Suite##__##Name(                          \
+    [[maybe_unused]] LISHP_TestContext* ctx)                                   \
+  {                                                                            \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] LISHP_TEST_SECTION_ATTR static LISHP_TestRegisterFunction   \
+    LISHP_TEST_ENTRY__##Suite##__##Name =                                      \
+      LISHP_TEST_REGISTER__##Suite##__##Name;                                  \
+                                                                               \
+  [[maybe_unused]] static void LISHP_TEST__##Suite##__##Name(                  \
     [[maybe_unused]] LISHP_TestContext* LISHP_TEST_CONTEXT,                    \
-    [[maybe_unused]] LISHP_Context*     LISHP_CONTEXT)
+    [[maybe_unused]] LISHP_Context*     ctx)
 
 /*****************************************************************************/
 /*                                   TYPES                                   */
 /*****************************************************************************/
 
 typedef struct LISHP_TestContext LISHP_TestContext;
+
+typedef void (*LISHP_TestRegisterFunction)(LISHP_TestContext*);
 
 /**
  * @brief Context used during execution of all the test cases
@@ -28,6 +40,13 @@ struct LISHP_TestContext
 {
   LISHP_Allocator* alloc;
 };
+
+/*****************************************************************************/
+/*                                  GLOBALS                                  */
+/*****************************************************************************/
+
+extern LISHP_TestRegisterFunction __start_test_array[] LISHP_TEST_SECTION_START;
+extern LISHP_TestRegisterFunction __stop_test_array[] LISHP_TEST_SECTION_STOP;
 
 /*****************************************************************************/
 /*                                 LIFE CYCLE                                */

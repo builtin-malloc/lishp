@@ -2,6 +2,8 @@
 #include "lishp/lishp_prelude.h"
 #include "lishp/lishp_test.h"
 
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /*****************************************************************************/
@@ -26,7 +28,11 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
   auto test_ctx = LISHP_TestContext_Create(alloc);
   if (!test_ctx) return EXIT_FAILURE;
 
-  LISHP_TestContext_Destroy(test_ctx);
+  for (auto reg = __start_test_array; reg != __stop_test_array; ++reg) {
+    assert(*reg);
+    (*reg)(test_ctx);
+  }
 
+  LISHP_TestContext_Destroy(test_ctx);
   return EXIT_SUCCESS;
 }
