@@ -25,10 +25,14 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
                [[maybe_unused]] int   argc,
                [[maybe_unused]] char* argv[])
 {
-  auto test_ctx = LISHP_TestContext_Create(alloc);
+  auto registry_begin = __start_test_array;
+  auto registry_end   = __stop_test_array;
+  auto num_tests      = registry_end - registry_begin;
+
+  auto test_ctx = LISHP_TestContext_Create(alloc, num_tests);
   if (!test_ctx) return EXIT_FAILURE;
 
-  for (auto reg = __start_test_array; reg != __stop_test_array; ++reg) {
+  for (auto reg = registry_begin; reg != registry_end; ++reg) {
     assert(*reg);
     (*reg)(test_ctx);
   }
