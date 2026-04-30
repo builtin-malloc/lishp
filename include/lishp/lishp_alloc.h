@@ -62,13 +62,14 @@ struct LISHP_Allocator
  * @note The initialization function may assume the memory is 0-initialized
  */
 #define LISHP_Allocator_Construct(Alloc, Init, ...)                            \
-  Init(LISHP_Allocator_MallocZeroed(               \
-	 Alloc, sizeof(*(Init(nullptr __VA_OPT__(,) __VA_ARGS__)))) __VA_OPT__(, ) __VA_ARGS__))
+  Init(LISHP_Allocator_MallocZeroed(                                           \
+    Alloc, sizeof(*(Init(nullptr __VA_OPT__(, ) __VA_ARGS__)))) __VA_OPT__(, ) \
+         __VA_ARGS__)
 /**
  * @brief Finalizes an object and frees it
  * @note The finalization function must return the finalized object
  */
-#define LISHP_Allocator_Destruct(Alloc, Ptr, Fini)                             \
+#define LISHP_Allocator_Destruct(Alloc, Fini, Ptr)                             \
   LISHP_Allocator_Free(Alloc, Fini(Ptr));
 
 /**

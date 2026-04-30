@@ -1,3 +1,5 @@
+#include "lishp/lishp_alloc.h"
+#include "lishp/lishp_prelude.h"
 #include "lishp/lishp_test.h"
 
 #include <stdlib.h>
@@ -9,7 +11,7 @@
 int
 main(int argc, char* argv[])
 {
-  return LISHP_TestMain(argc, argv);
+  return LISHP_TestMain(LISHP_HeapAllocator(), argc, argv);
 }
 
 /*****************************************************************************/
@@ -17,7 +19,14 @@ main(int argc, char* argv[])
 /*****************************************************************************/
 
 [[nodiscard]] int
-LISHP_TestMain([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+LISHP_TestMain(LISHP_Allocator*       alloc,
+               [[maybe_unused]] int   argc,
+               [[maybe_unused]] char* argv[])
 {
+  auto test_ctx = LISHP_TestContext_Create(alloc);
+  if (!test_ctx) return EXIT_FAILURE;
+
+  LISHP_TestContext_Destroy(test_ctx);
+
   return EXIT_SUCCESS;
 }

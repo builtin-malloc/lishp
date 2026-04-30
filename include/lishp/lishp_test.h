@@ -1,7 +1,10 @@
 #ifndef LISHP_TEST_H
 #define LISHP_TEST_H
 
+#include "lishp/lishp_alloc.h"
 #include "lishp/lishp_prelude.h"
+
+#include <assert.h>
 
 /*****************************************************************************/
 /*                                   MACROS                                  */
@@ -18,11 +21,57 @@
 
 typedef struct LISHP_TestContext LISHP_TestContext;
 
+/**
+ * @brief Context used during execution of all the test cases
+ */
+struct LISHP_TestContext
+{
+  LISHP_Allocator* alloc;
+};
+
+/*****************************************************************************/
+/*                                 LIFE CYCLE                                */
+/*****************************************************************************/
+
+/**
+ * @brief Initializer for the test context
+ */
+[[nodiscard]] LISHP_TestContext*
+LISHP_TestContext_Initialize(LISHP_TestContext* ctx, LISHP_Allocator* alloc);
+/**
+ * @brief Finalizer for the test context
+ */
+[[nodiscard]] LISHP_TestContext*
+LISHP_TestContext_Finalize(LISHP_TestContext* ctx);
+
+/**
+ * @returns A freshly created test-context or NULL on failure
+ */
+[[nodiscard, maybe_unused]] static inline LISHP_TestContext*
+LISHP_TestContext_Create(LISHP_Allocator* alloc)
+{
+  assert(alloc);
+  return LISHP_Allocator_Construct(alloc, LISHP_TestContext_Initialize, alloc);
+}
+
+/**
+ * @brief Destroys the test-context
+ */
+[[maybe_unused]] static inline LISHP_TestContext*
+LISHP_TestContext_Destroy(LISHP_TestContext* ctx)
+{
+  if (!ctx) return nullptr;
+  return LISHP_Allocator_Destruct(ctx->alloc, LISHP_TestContext_Finalize, ctx);
+}
+
 /*****************************************************************************/
 /*                                    MAIN                                   */
 /*****************************************************************************/
 
+/**
+ * @brief Implementation for the main function
+ */
 [[nodiscard]] int
-LISHP_TestMain(int argc, char* argv[]);
+LISHP_TestMain(LISHP_Allocator* alloc, int argc, char* argv[]);
 
 #endif /* LISHP_TEST_H */
