@@ -33,6 +33,49 @@
     [[maybe_unused]] const LISHP_TestRegistry_Entry* LISHP_TEST_ENTRY,         \
     [[maybe_unused]] LISHP_Context*                  ctx)
 
+/**
+ * @brief Helper for the assertion macros
+ */
+#define LISHP_TEST_ASSERT__TEMPLATE(Cond, Detail)                              \
+  do {                                                                         \
+    LISHP_TestContext_RecordAssert(LISHP_TEST_CONTEXT);                        \
+    if (!(Cond)) {                                                             \
+      LISHP_TestContext_RecordAssertFailure(                                   \
+        LISHP_TEST_CONTEXT, __FILE__, __LINE__, Detail, LISHP_TEST_ENTRY);     \
+    }                                                                          \
+  } while (false)
+
+/**
+ * @brief Asserts a boolean is true
+ */
+#define LISHP_TEST_ASSERT_TRUE(Cond)                                           \
+  LISHP_TEST_ASSERT__TEMPLATE(Cond, #Cond " to be true")
+/**
+ * @brief Asserts a boolean is false
+ */
+#define LISHP_TEST_ASSERT_FALSE(Cond)                                          \
+  LISHP_TEST_ASSERT__TEMPLATE(!(Cond), #Cond " to be false")
+/**
+ * @brief Asserts a pointer is not a NULL pointer
+ */
+#define LISHP_TEST_ASSERT_NOT_NULL(Cond)                                       \
+  LISHP_TEST_ASSERT__TEMPLATE(Cond, #Cond " to not be NULL")
+/**
+ * @brief Asserts a pointer is a NULL pointer
+ */
+#define LISHP_TEST_ASSERT_NULL(Cond)                                           \
+  LISHP_TEST_ASSERT__TEMPLATE(!(Cond), #Cond " to be NULL")
+/**
+ * @brief Asserts two values to be equal
+ */
+#define LISHP_TEST_ASSERT_EQUAL(A, B)                                          \
+  LISHP_TEST_ASSERT__TEMPLATE((A) == (B), #A " to equal " #B)
+/**
+ * @brief Asserts two values to not be equal
+ */
+#define LISHP_TEST_ASSERT_NOT_EQUAL(A, B)                                      \
+  LISHP_TEST_ASSERT__TEMPLATE((A) != (B), #A " to not equal " #B)
+
 /*****************************************************************************/
 /*                                   TYPES                                   */
 /*****************************************************************************/
@@ -84,7 +127,6 @@ struct LISHP_TestRegistry_Entry
  */
 struct LISHP_TestSummary
 {
-  size_t                     num_tests;
   size_t                     num_tests_failed;
   size_t                     num_asserts;
   size_t                     num_asserts_failed;
@@ -258,6 +300,49 @@ LISHP_TestContext_Register(LISHP_TestContext* ctx,
   assert(func);
 
   LISHP_TestRegistry_Register(ctx->registry, suite, name, func);
+}
+
+/**
+ * @brief Record that an assert was executed
+ */
+void
+LISHP_TestSummary_RecordAssert(LISHP_TestSummary* sum);
+/**
+ * @brief Record that an assert failed
+ */
+void
+LISHP_TestSummary_RecordAssertFailure(LISHP_TestSummary*              sum,
+                                      const char*                     file,
+                                      int                             line,
+                                      const char*                     detail,
+                                      const LISHP_TestRegistry_Entry* entry);
+
+/**
+ * @brief Record that an assert was executed
+ */
+[[maybe_unused]] static inline void
+LISHP_TestContext_RecordAssert(LISHP_TestContext* ctx)
+{
+  assert(ctx);
+  LISHP_TestSummary_RecordAssert(ctx->summary);
+}
+
+/**
+ * @brief Record that an assert failed
+ */
+[[maybe_unused]] static inline void
+LISHP_TestContext_RecordAssertFailure(LISHP_TestContext*              ctx,
+                                      const char*                     file,
+                                      int                             line,
+                                      const char*                     detail,
+                                      const LISHP_TestRegistry_Entry* entry)
+{
+  assert(ctx);
+  assert(file);
+  assert(detail);
+
+  LISHP_TestSummary_RecordAssertFailure(
+    ctx->summary, file, line, detail, entry);
 }
 
 /*****************************************************************************/

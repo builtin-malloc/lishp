@@ -88,7 +88,6 @@ LISHP_TestSummary_Initialize(LISHP_TestSummary* sum,
 {
   if (!sum) goto failure;
 
-  sum->num_tests          = 0;
   sum->num_tests_failed   = 0;
   sum->num_asserts        = 0;
   sum->num_asserts_failed = 0;
@@ -112,7 +111,6 @@ LISHP_TestSummary_Finalize(LISHP_TestSummary* sum)
 {
   if (!sum) return nullptr;
 
-  sum->num_tests          = 0;
   sum->num_tests_failed   = 0;
   sum->num_asserts        = 0;
   sum->num_asserts_failed = 0;
@@ -154,4 +152,51 @@ LISHP_TestRegistry_Register(LISHP_TestRegistry* reg,
   entry->func  = func;
 
   reg->num_entries += 1;
+}
+
+void
+LISHP_TestSummary_RecordAssert(LISHP_TestSummary* sum)
+{
+  assert(sum);
+  sum->num_asserts += 1;
+}
+
+void
+LISHP_TestSummary_RecordAssertFailure(LISHP_TestSummary*              sum,
+                                      const char*                     file,
+                                      int                             line,
+                                      const char*                     detail,
+                                      const LISHP_TestRegistry_Entry* entry)
+{
+  assert(sum);
+  assert(file);
+  assert(line > 0);
+  assert(detail);
+  assert(entry);
+
+  bool entry_is_already_recorded = false;
+  for (size_t i = 0; i < sum->num_failures; ++i) {
+    auto idx = sum->num_failures - i - 1;
+    if (sum->failures[idx].entry == entry) {
+      entry_is_already_recorded = true;
+      break;
+    }
+  }
+
+  sum->num_asserts_failed += 1;
+  sum->num_tests_failed   += entry_is_already_recorded ? 0 : 1;
+
+  // We already recorded as many detailed failures as possible, so we just do
+  // not add a new one.
+  if (sum->num_failures >= sum->max_failures) return;
+
+  auto idx     = sum->num_failures;
+  auto failure = &sum->failures[idx];
+
+  failure->file   = file;
+  failure->line   = line;
+  failure->detail = detail;
+  failure->entry  = entry;
+
+  sum->num_failures += 1;
 }
