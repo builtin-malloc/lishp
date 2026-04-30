@@ -15,8 +15,8 @@
  * @brief Defines a test
  */
 #define LISHP_TEST(Suite, Name)                                                \
-  static void LISHP_TEST__##Suite##__##Name(LISHP_TestContext*,                \
-                                            LISHP_Context*);                   \
+  static void LISHP_TEST__##Suite##__##Name(                                   \
+    LISHP_TestContext*, const LISHP_TestRegistry_Entry*, LISHP_Context*);      \
                                                                                \
   static void LISHP_TEST_REGISTER__##Suite##__##Name(LISHP_TestContext* ctx)   \
   {                                                                            \
@@ -29,19 +29,24 @@
       LISHP_TEST_REGISTER__##Suite##__##Name;                                  \
                                                                                \
   static void LISHP_TEST__##Suite##__##Name(                                   \
-    [[maybe_unused]] LISHP_TestContext* LISHP_TEST_CONTEXT,                    \
-    [[maybe_unused]] LISHP_Context*     ctx)
+    [[maybe_unused]] LISHP_TestContext*              LISHP_TEST_CONTEXT,       \
+    [[maybe_unused]] const LISHP_TestRegistry_Entry* LISHP_TEST_ENTRY,         \
+    [[maybe_unused]] LISHP_Context*                  ctx)
 
 /*****************************************************************************/
 /*                                   TYPES                                   */
 /*****************************************************************************/
 
-typedef struct LISHP_TestContext        LISHP_TestContext;
-typedef struct LISHP_TestRegistry       LISHP_TestRegistry;
-typedef struct LISHP_TestRegistry_Entry LISHP_TestRegistry_Entry;
+typedef struct LISHP_TestContext         LISHP_TestContext;
+typedef struct LISHP_TestRegistry        LISHP_TestRegistry;
+typedef struct LISHP_TestRegistry_Entry  LISHP_TestRegistry_Entry;
+typedef struct LISHP_TestSummary         LISHP_TestSummary;
+typedef struct LISHP_TestSummary_Failure LISHP_TestSummary_Failure;
 
 typedef void (*LISHP_TestRegisterFunction)(LISHP_TestContext*);
-typedef void (*LISHP_TestFunction)(LISHP_TestContext*, LISHP_Context*);
+typedef void (*LISHP_TestFunction)(LISHP_TestContext*,
+                                   const LISHP_TestRegistry_Entry*,
+                                   LISHP_Context*);
 
 /**
  * @brief Context used during execution of all the test cases
@@ -49,6 +54,7 @@ typedef void (*LISHP_TestFunction)(LISHP_TestContext*, LISHP_Context*);
 struct LISHP_TestContext
 {
   LISHP_TestRegistry* registry;
+  LISHP_TestSummary*  summary;
   LISHP_Allocator*    alloc;
 };
 
@@ -71,6 +77,32 @@ struct LISHP_TestRegistry_Entry
   const char*        suite;
   const char*        name;
   LISHP_TestFunction func;
+};
+
+/**
+ * @brief Summarizes the results of running the tests
+ */
+struct LISHP_TestSummary
+{
+  size_t                     num_tests;
+  size_t                     num_tests_failed;
+  size_t                     num_asserts;
+  size_t                     num_asserts_failed;
+  size_t                     max_failures;
+  size_t                     num_failures;
+  LISHP_TestSummary_Failure* failures;
+  LISHP_Allocator*           alloc;
+};
+
+/**
+ * @brief Details why a test failed
+ */
+struct LISHP_TestSummary_Failure
+{
+  const char*                     file;
+  int                             line;
+  const char*                     detail;
+  const LISHP_TestRegistry_Entry* entry;
 };
 
 /*****************************************************************************/
@@ -160,6 +192,42 @@ LISHP_TestRegistry_Destroy(LISHP_TestRegistry* reg)
 {
   if (!reg) return nullptr;
   return LISHP_Allocator_Destruct(reg->alloc, LISHP_TestRegistry_Finalize, reg);
+}
+
+/* SUMMARY *******************************************************************/
+
+/**
+ * @brief Initializer for the test summary
+ */
+[[nodiscard]] LISHP_TestSummary*
+LISHP_TestSummary_Initialize(LISHP_TestSummary* sum,
+                             LISHP_Allocator*   alloc,
+                             size_t             max_failures);
+/**
+ * @brief Finalizer for the test summary
+ */
+[[nodiscard]] LISHP_TestSummary*
+LISHP_TestSummary_Finalize(LISHP_TestSummary* sum);
+
+/**
+ * @returns A freshly created test-summary or NULL on failure
+ */
+[[nodiscard, maybe_unused]] static inline LISHP_TestSummary*
+LISHP_TestSummary_Create(LISHP_Allocator* alloc, size_t max_failures)
+{
+  assert(alloc);
+  return LISHP_Allocator_Construct(
+    alloc, LISHP_TestSummary_Initialize, alloc, max_failures);
+}
+
+/**
+ * @brief Destroys the test-summary
+ */
+[[maybe_unused]] static inline LISHP_TestSummary*
+LISHP_TestSummary_Destroy(LISHP_TestSummary* sum)
+{
+  if (!sum) return nullptr;
+  return LISHP_Allocator_Destruct(sum->alloc, LISHP_TestSummary_Finalize, sum);
 }
 
 /*****************************************************************************/

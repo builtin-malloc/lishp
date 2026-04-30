@@ -18,9 +18,10 @@ LISHP_TestContext_Initialize(LISHP_TestContext* ctx,
   if (!ctx) goto failure;
 
   ctx->registry = LISHP_TestRegistry_Create(alloc, max_tests);
+  ctx->summary  = LISHP_TestSummary_Create(alloc, max_tests);
   ctx->alloc    = alloc;
 
-  if (!ctx->registry) goto failure;
+  if (!ctx->registry || !ctx->summary) goto failure;
 
   return ctx;
 
@@ -35,6 +36,7 @@ LISHP_TestContext_Finalize(LISHP_TestContext* ctx)
   if (!ctx) return nullptr;
 
   ctx->registry = LISHP_TestRegistry_Destroy(ctx->registry);
+  ctx->summary  = LISHP_TestSummary_Destroy(ctx->summary);
   ctx->alloc    = nullptr;
 
   return ctx;
@@ -75,6 +77,51 @@ LISHP_TestRegistry_Finalize(LISHP_TestRegistry* reg)
   reg->alloc       = nullptr;
 
   return reg;
+}
+
+/* REGISTRY ******************************************************************/
+
+[[nodiscard]] LISHP_TestSummary*
+LISHP_TestSummary_Initialize(LISHP_TestSummary* sum,
+                             LISHP_Allocator*   alloc,
+                             size_t             max_failures)
+{
+  if (!sum) goto failure;
+
+  sum->num_tests          = 0;
+  sum->num_tests_failed   = 0;
+  sum->num_asserts        = 0;
+  sum->num_asserts_failed = 0;
+  sum->failures =
+    LISHP_Allocator_Malloc(alloc, max_failures * sizeof(*sum->failures));
+  sum->max_failures = sum->failures ? max_failures : 0;
+  sum->num_failures = 0;
+  sum->alloc        = alloc;
+
+  if (!sum->failures) goto failure;
+
+  return sum;
+
+failure:
+  fprintf(stderr, "!!!WARN!!! Failed to allocate the test summary");
+  return LISHP_TestSummary_Destroy(sum);
+}
+
+[[nodiscard]] LISHP_TestSummary*
+LISHP_TestSummary_Finalize(LISHP_TestSummary* sum)
+{
+  if (!sum) return nullptr;
+
+  sum->num_tests          = 0;
+  sum->num_tests_failed   = 0;
+  sum->num_asserts        = 0;
+  sum->num_asserts_failed = 0;
+  sum->failures           = LISHP_Allocator_Free(sum->alloc, sum->failures);
+  sum->max_failures       = 0;
+  sum->num_failures       = 0;
+  sum->alloc              = nullptr;
+
+  return sum;
 }
 
 /*****************************************************************************/

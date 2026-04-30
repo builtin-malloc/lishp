@@ -37,6 +37,6 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
     (*reg)(test_ctx);
   }
 
-  LISHP_TestContext_Destroy(test_ctx);
+LISHP_TestContext_Destroy(test_ctx);
   return EXIT_SUCCESS;
 }
