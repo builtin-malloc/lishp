@@ -37,6 +37,13 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
     (*reg)(test_ctx);
   }
 
-LISHP_TestContext_Destroy(test_ctx);
+  auto entries_begin = LISHP_TestContext_EntriesBegin(test_ctx);
+  auto entries_end   = LISHP_TestContext_EntriesEnd(test_ctx);
+  for (auto entry = entries_begin; entry != entries_end; ++entry) {
+    assert(entry->func);
+    entry->func(test_ctx, entry, nullptr);
+  }
+
+  LISHP_TestContext_Destroy(test_ctx);
   return EXIT_SUCCESS;
 }

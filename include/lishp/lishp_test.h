@@ -345,6 +345,24 @@ LISHP_TestContext_RecordAssertFailure(LISHP_TestContext*              ctx,
     ctx->summary, file, line, detail, entry);
 }
 
+[[nodiscard, maybe_unused]] static inline const LISHP_TestRegistry_Entry*
+LISHP_TestContext_EntriesBegin(const LISHP_TestContext* ctx)
+{
+  assert(ctx);
+  assert(ctx->registry);
+  assert(ctx->registry->entries);
+  return ctx->registry->entries;
+}
+
+[[nodiscard, maybe_unused]] static inline const LISHP_TestRegistry_Entry*
+LISHP_TestContext_EntriesEnd(const LISHP_TestContext* ctx)
+{
+  assert(ctx);
+  assert(ctx->registry);
+  assert(ctx->registry->entries);
+  return ctx->registry->entries + ctx->registry->num_entries;
+}
+
 /*****************************************************************************/
 /*                                    MAIN                                   */
 /*****************************************************************************/
