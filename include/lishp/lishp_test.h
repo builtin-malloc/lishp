@@ -12,9 +12,9 @@
 /*****************************************************************************/
 
 /**
- * @brief Defines a test
+ * @brief Defines a test that uses a fresh LISHP context
  */
-#define LISHP_TEST(Suite, Name)                                                \
+#define LISHP_TEST_WITH_CONTEXT(Suite, Name, CtxDecl)                          \
   static void LISHP_TEST__##Suite##__##Name(                                   \
     LISHP_TestContext*, const LISHP_TestRegistry_Entry*, LISHP_Context*);      \
                                                                                \
@@ -31,7 +31,13 @@
   static void LISHP_TEST__##Suite##__##Name(                                   \
     [[maybe_unused]] LISHP_TestContext*              LISHP_TEST_CONTEXT,       \
     [[maybe_unused]] const LISHP_TestRegistry_Entry* LISHP_TEST_ENTRY,         \
-    [[maybe_unused]] LISHP_Context*                  ctx)
+    CtxDecl)
+
+/**
+ * @brief Defines a test
+ */
+#define LISHP_TEST(Suite, Name)                                                \
+  LISHP_TEST_WITH_CONTEXT(Suite, Name, [[maybe_unused]] LISHP_Context*)
 
 /**
  * @brief Helper for the assertion macros
