@@ -134,6 +134,7 @@ LISHP_TestSummary_Finalize(LISHP_TestSummary* sum)
 
 void
 LISHP_TestRegistry_Register(LISHP_TestRegistry* reg,
+                            bool                needs_context,
                             const char*         suite,
                             const char*         name,
                             LISHP_TestFunction  func)
@@ -153,9 +154,10 @@ LISHP_TestRegistry_Register(LISHP_TestRegistry* reg,
   auto idx   = reg->num_entries;
   auto entry = &reg->entries[idx];
 
-  entry->suite = suite;
-  entry->name  = name;
-  entry->func  = func;
+  entry->needs_context = needs_context;
+  entry->suite         = suite;
+  entry->name          = name;
+  entry->func          = func;
 
   reg->num_entries += 1;
 }

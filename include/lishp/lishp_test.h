@@ -12,17 +12,14 @@
 /*                                   MACROS                                  */
 /*****************************************************************************/
 
-/**
- * @brief Defines a test that uses a fresh LISHP context
- */
-#define LISHP_TEST_WITH_CONTEXT(Suite, Name, CtxDecl)                          \
+#define LISHP_TEST__TEMPLATE(NeedsContext, Suite, Name, CtxDecl)               \
   static void LISHP_TEST__##Suite##__##Name(                                   \
-    LISHP_TestContext*, const LISHP_TestRegistry_Entry*, LISHP_Context*);      \
+    LISHP_TestContext*, const LISHP_TestRegistry_Entry*, CtxDecl);             \
                                                                                \
   static void LISHP_TEST_REGISTER__##Suite##__##Name(LISHP_TestContext* ctx)   \
   {                                                                            \
     LISHP_TestContext_Register(                                                \
-      ctx, #Suite, #Name, LISHP_TEST__##Suite##__##Name);                      \
+      ctx, NeedsContext, #Suite, #Name, LISHP_TEST__##Suite##__##Name);        \
   }                                                                            \
                                                                                \
   LISHP_TEST_SECTION_ATTR static LISHP_TestRegisterFunction                    \
@@ -35,10 +32,15 @@
     CtxDecl)
 
 /**
+ * @brief Defines a test that uses a fresh LISHP context
+ */
+#define LISHP_TEST_WITH_CONTEXT(Suite, Name, CtxDecl)                          \
+  LISHP_TEST__TEMPLATE(true, Suite, Name, CtxDecl)
+/**
  * @brief Defines a test
  */
 #define LISHP_TEST(Suite, Name)                                                \
-  LISHP_TEST_WITH_CONTEXT(Suite, Name, [[maybe_unused]] LISHP_Context*)
+  LISHP_TEST__TEMPLATE(false, Suite, Name, [[maybe_unused]] LISHP_Context*)
 
 /**
  * @brief Helper for the assertion macros
@@ -124,6 +126,7 @@ struct LISHP_TestRegistry
  */
 struct LISHP_TestRegistry_Entry
 {
+  bool               needs_context;
   const char*        suite;
   const char*        name;
   LISHP_TestFunction func;
@@ -289,6 +292,7 @@ LISHP_TestSummary_Destroy(LISHP_TestSummary* sum)
  */
 void
 LISHP_TestRegistry_Register(LISHP_TestRegistry* reg,
+                            bool                needs_context,
                             const char*         suite,
                             const char*         name,
                             LISHP_TestFunction  func);
@@ -298,6 +302,7 @@ LISHP_TestRegistry_Register(LISHP_TestRegistry* reg,
  */
 [[maybe_unused]] static inline void
 LISHP_TestContext_Register(LISHP_TestContext* ctx,
+                           bool               needs_context,
                            const char*        suite,
                            const char*        name,
                            LISHP_TestFunction func)
@@ -307,7 +312,7 @@ LISHP_TestContext_Register(LISHP_TestContext* ctx,
   assert(name);
   assert(func);
 
-  LISHP_TestRegistry_Register(ctx->registry, suite, name, func);
+  LISHP_TestRegistry_Register(ctx->registry, needs_context, suite, name, func);
 }
 
 /**

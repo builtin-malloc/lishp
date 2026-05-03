@@ -43,8 +43,7 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
   auto entries_begin = LISHP_TestContext_EntriesBegin(test_ctx);
   auto entries_end   = LISHP_TestContext_EntriesEnd(test_ctx);
   for (auto entry = entries_begin; entry != entries_end; ++entry) {
-    auto rt = LISHP_Runtime_Create(alloc);
-    if (!rt) return EXIT_FAILURE;
+    auto rt = entry->needs_context ? LISHP_Runtime_Create(alloc) : nullptr;
 
     assert(entry->func);
     entry->func(test_ctx, entry, nullptr);
