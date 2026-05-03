@@ -50,7 +50,7 @@ LISHP_Evaluate(LISHP_Context* ctx, LISHP_Value form)
 LISHP_Print(LISHP_Context* ctx, [[maybe_unused]] LISHP_Value form)
 {
   if (!ctx) return NULL;
-  return NULL;
+  return "repr";
 }
 
 #endif /* LISHP_API_H */

@@ -7,7 +7,7 @@ LIBOBJ := $(LIBSRC:@SRCDIR@/%.c=@OBJDIR@/%.o)
 LIBDEP := $(LIBOBJ:.o=.d)
 LIB    := @BINDIR@/liblishp.a
 
-BINSRC := @SRCDIR@/main.c
+BINSRC := @SRCDIR@/main.c @SRCDIR@/repl.c
 BINOBJ := $(BINSRC:@SRCDIR@/%.c=@OBJDIR@/%.o)
 BINDEP := $(BINOBJ:.o=.d)
 BIN    := @BINDIR@/lishp
