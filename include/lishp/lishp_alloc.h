@@ -107,9 +107,10 @@ LISHP_Allocator_Free(LISHP_Allocator* alloc, void* ptr)
 
 /**
  * @brief Reallocates using the allocators `realloc` function
- * @retuens the reallocated memory
+ * @returns the reallocated memory
  * @note If the allocator is NULL or it has no `realloc`, this returns NULL
  * @note If the input is NULL, this calls the allocators `malloc` instead
+ * @note If the size is 0, this returns NULL
  */
 [[nodiscard, maybe_unused]] static inline void*
 LISHP_Allocator_Realloc(LISHP_Allocator* alloc, void* ptr, size_t size)
@@ -117,6 +118,7 @@ LISHP_Allocator_Realloc(LISHP_Allocator* alloc, void* ptr, size_t size)
   if (!alloc) return nullptr;
   if (!alloc->virtual_table) return nullptr;
   if (!alloc->virtual_table->realloc_function) return nullptr;
+  if (size == 0) return nullptr;
   if (!ptr) return LISHP_Allocator_Malloc(alloc, size);
   return alloc->virtual_table->realloc_function(alloc->context, ptr, size);
 }
