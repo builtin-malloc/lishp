@@ -58,4 +58,17 @@ LISHP_Runtime_Destroy(LISHP_Runtime* rt)
   return LISHP_Allocator_Destruct(rt->alloc, LISHP_Runtime_Finalize, rt);
 }
 
+/*****************************************************************************/
+/*                                 ACCESSORS                                 */
+/*****************************************************************************/
+
+/**
+ * @returns The runtime's allocator
+ */
+[[nodiscard, maybe_unused]] static inline LISHP_Allocator*
+LISHP_Runtime_GetAllocator(LISHP_Runtime* rt)
+{
+  return rt ? rt->alloc : nullptr;
+}
+
 #endif /* LISHP_RUNTIME_H */

@@ -1,4 +1,5 @@
 #include "lishp/lishp_alloc.h"
+#include "lishp/lishp_context.h"
 #include "lishp/lishp_prelude.h"
 #include "lishp/lishp_runtime.h"
 #include "lishp/lishp_test.h"
@@ -43,11 +44,13 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
   auto entries_begin = LISHP_TestContext_EntriesBegin(test_ctx);
   auto entries_end   = LISHP_TestContext_EntriesEnd(test_ctx);
   for (auto entry = entries_begin; entry != entries_end; ++entry) {
-    auto rt = entry->needs_context ? LISHP_Runtime_Create(alloc) : nullptr;
+    auto rt  = entry->needs_context ? LISHP_Runtime_Create(alloc) : nullptr;
+    auto ctx = entry->needs_context ? LISHP_Context_Create(rt) : nullptr;
 
     assert(entry->func);
-    entry->func(test_ctx, entry, nullptr);
+    entry->func(test_ctx, entry, ctx);
 
+    LISHP_Context_Destroy(ctx);
     LISHP_Runtime_Destroy(rt);
   }
 
