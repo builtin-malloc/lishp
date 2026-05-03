@@ -6,6 +6,7 @@
 #include "lishp/lishp_test__macos.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 /*****************************************************************************/
 /*                                   MACROS                                  */
@@ -133,6 +134,7 @@ struct LISHP_TestRegistry_Entry
  */
 struct LISHP_TestSummary
 {
+  size_t                     num_tests;
   size_t                     num_tests_failed;
   size_t                     num_asserts;
   size_t                     num_asserts_failed;
@@ -367,6 +369,33 @@ LISHP_TestContext_EntriesEnd(const LISHP_TestContext* ctx)
   assert(ctx->registry);
   assert(ctx->registry->entries);
   return ctx->registry->entries + ctx->registry->num_entries;
+}
+
+void
+LISHP_TestSummary_PrintFailures(const LISHP_TestSummary* sum, FILE* stream);
+void
+LISHP_TestSummary_PrintTotals(const LISHP_TestSummary* sum, FILE* stream);
+
+[[nodiscard, maybe_unused]] static inline bool
+LISHP_TestContext_HasAnyFailures(const LISHP_TestContext* ctx)
+{
+  assert(ctx);
+  assert(ctx->summary);
+  return ctx->summary->num_asserts_failed > 0;
+}
+
+[[maybe_unused]] static inline void
+LISHP_TestContext_PrintFailures(const LISHP_TestContext* ctx, FILE* stream)
+{
+  assert(ctx);
+  LISHP_TestSummary_PrintFailures(ctx->summary, stream);
+}
+
+[[maybe_unused]] static inline void
+LISHP_TestContext_PrintSummary(const LISHP_TestContext* ctx, FILE* stream)
+{
+  assert(ctx);
+  LISHP_TestSummary_PrintTotals(ctx->summary, stream);
 }
 
 /*****************************************************************************/

@@ -25,6 +25,8 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
                [[maybe_unused]] int   argc,
                [[maybe_unused]] char* argv[])
 {
+  auto exit_code = EXIT_SUCCESS;
+
   auto registry_begin = __start_test_array;
   auto registry_end   = __stop_test_array;
   auto num_tests      = registry_end - registry_begin;
@@ -44,6 +46,13 @@ LISHP_TestMain(LISHP_Allocator*       alloc,
     entry->func(test_ctx, entry, nullptr);
   }
 
+  if (LISHP_TestContext_HasAnyFailures(test_ctx)) {
+    exit_code = EXIT_FAILURE;
+    LISHP_TestContext_PrintFailures(test_ctx, stderr);
+  }
+
+  LISHP_TestContext_PrintSummary(test_ctx, stdout);
+
   LISHP_TestContext_Destroy(test_ctx);
-  return EXIT_SUCCESS;
+  return exit_code;
 }

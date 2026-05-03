@@ -88,6 +88,11 @@ LISHP_TestSummary_Initialize(LISHP_TestSummary* sum,
 {
   if (!sum) goto failure;
 
+  // TODO: Right now, it is not enforced that `max_failures == num_tests`.
+  //       I just implicitly assume it.
+  //       We should investigate how to improve this API.
+
+  sum->num_tests          = max_failures;
   sum->num_tests_failed   = 0;
   sum->num_asserts        = 0;
   sum->num_asserts_failed = 0;
@@ -111,6 +116,7 @@ LISHP_TestSummary_Finalize(LISHP_TestSummary* sum)
 {
   if (!sum) return nullptr;
 
+  sum->num_tests          = 0;
   sum->num_tests_failed   = 0;
   sum->num_asserts        = 0;
   sum->num_asserts_failed = 0;
@@ -199,4 +205,64 @@ LISHP_TestSummary_RecordAssertFailure(LISHP_TestSummary*              sum,
   failure->entry  = entry;
 
   sum->num_failures += 1;
+}
+
+void
+LISHP_TestSummary_PrintFailures(const LISHP_TestSummary* sum, FILE* stream)
+{
+  assert(sum);
+
+  if (!stream) return;
+
+  for (size_t i = 0; i < sum->num_failures; ++i) {
+    auto failure = &sum->failures[i];
+    auto entry   = failure->entry;
+
+    assert(failure->file);
+    assert(failure->detail);
+    assert(failure->entry);
+    assert(entry->name);
+    assert(entry->suite);
+
+    fprintf(stream,
+            "\n[TEST FAILURE] %s::%s\n"
+            "\tin %s.%d\n"
+            "\texpected %s\n\n",
+            entry->suite,
+            entry->name,
+            failure->file,
+            failure->line,
+            failure->detail);
+  }
+}
+
+void
+LISHP_TestSummary_PrintTotals(const LISHP_TestSummary* sum, FILE* stream)
+{
+  assert(sum);
+
+  if (!stream) return;
+
+  auto num_tests             = sum->num_tests;
+  auto num_tests_failed      = sum->num_tests_failed;
+  auto num_tests_succeeded   = num_tests - num_tests_failed;
+  auto num_asserts           = sum->num_asserts;
+  auto num_asserts_failed    = sum->num_asserts_failed;
+  auto num_asserts_succeeded = num_asserts - num_asserts_failed;
+
+  fprintf(stream,
+          "\n====================[ TEST SUMMARY ]====================\n"
+          "== Number Of Tests: %zu\n"
+          "== - Successes: %zu\n"
+          "== - Failures:  %zu\n"
+          "== Number Of Assertions: %zu\n"
+          "== - Successes: %zu\n"
+          "== - Failures:  %zu\n"
+          "========================================================\n",
+          num_tests,
+          num_tests_succeeded,
+          num_tests_failed,
+          num_asserts,
+          num_asserts_succeeded,
+          num_asserts_failed);
 }

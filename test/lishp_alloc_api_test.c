@@ -8,5 +8,6 @@
 
 LISHP_TEST(alloc, malloc)
 {
-  printf("Hello");
+  LISHP_TEST_ASSERT_TRUE(true);
+  LISHP_TEST_ASSERT_FALSE(true);
 }
