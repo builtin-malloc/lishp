@@ -43,6 +43,13 @@ $(TESTOBJ): @OBJDIR@/%.o: @TESTDIR@/%.c
 -include $(BINDEP)
 -include $(TESTDEP)
 
+# TEST ########################################################################
+
+.PHONY: test
+
+test: $(TEST)
+	$<
+
 # CLEAN #######################################################################
 
 .PHONY: clean distclean
