@@ -91,3 +91,33 @@ LISHP_Object_Finalize(LISHP_Object*                     obj,
     case LISHP_OBJECT_TAG_MACRO   : break;
   }
 }
+
+/*****************************************************************************/
+/*                                  VISITORS                                 */
+/*****************************************************************************/
+
+void
+LISHP_Object_Visit(LISHP_Object* obj,
+                   void          (*visitor)(LISHP_Object*, void*),
+                   void*         ctx)
+{
+  assert(obj);
+  assert(visitor);
+
+  visitor(obj, ctx);
+
+  switch (LISHP_Object_GetTag(obj)) {
+
+    // Atomic values, no recursion needed
+    case LISHP_OBJECT_TAG_NIL     : break;
+    case LISHP_OBJECT_TAG_SYMBOL  : break;
+    case LISHP_OBJECT_TAG_KEYWORD : break;
+    case LISHP_OBJECT_TAG_FUNCTION: break;
+    case LISHP_OBJECT_TAG_MACRO   : break;
+
+    case LISHP_OBJECT_TAG_CONS: {
+      // TODO: Recurse
+      break;
+    }
+  }
+}
