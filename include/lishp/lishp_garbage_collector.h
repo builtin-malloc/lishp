@@ -26,6 +26,10 @@ struct LISHP_GarbageCollector
   size_t min_heap_threshold;
   size_t heap_threshold;
   size_t heap_size;
+
+  size_t         max_roots;
+  size_t         num_roots;
+  LISHP_Object** roots;
 };
 
 struct LISHP_GarbageCollector_Header
@@ -106,5 +110,13 @@ LISHP_Object_ToHeader(LISHP_Object* object)
   size_t off  = sizeof(LISHP_GarbageCollector_Header);
   return (LISHP_GarbageCollector_Header*)(addr - off);
 }
+
+/*****************************************************************************/
+/*                                  HELPERS                                  */
+/*****************************************************************************/
+
+void
+LISHP_GarbageCollector_MarkObjectRecursively(LISHP_GarbageCollector* gc,
+                                             LISHP_Object*           obj);
 
 #endif /* LISHP_GARBAGE_COLLECTOR_H */

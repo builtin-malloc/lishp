@@ -154,7 +154,7 @@ LISHP_Object_GetTag(const LISHP_Object* obj)
 
 void
 LISHP_Object_Visit(LISHP_Object* obj,
-                   void          (*visitor)(LISHP_Object*, void*),
+                   bool          (*visitor)(LISHP_Object*, void*),
                    void*         ctx);
 
 #endif /* LISHP_OBJECT_H */

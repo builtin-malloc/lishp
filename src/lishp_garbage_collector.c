@@ -13,15 +13,25 @@ LISHP_GarbageCollector_Initialize(LISHP_GarbageCollector* gc,
 {
   if (!gc) return nullptr;
 
+  constexpr float  GROWTH_FACTOR = 2.0;
+  constexpr size_t MIN_THRESHOLD = 1024;
+  constexpr size_t MAX_ROOTS     = 128;
+
   gc->alloc = alloc;
 
   gc->first_object = nullptr;
   gc->last_object  = nullptr;
 
-  gc->heap_growth_factor = 2.0;
-  gc->min_heap_threshold = 1024;
-  gc->heap_threshold     = gc->min_heap_threshold;
+  gc->heap_growth_factor = GROWTH_FACTOR;
+  gc->min_heap_threshold = MIN_THRESHOLD;
+  gc->heap_threshold     = MIN_THRESHOLD;
   gc->heap_size          = 0;
+
+  gc->roots     = LISHP_Allocator_Malloc(alloc, MAX_ROOTS * sizeof(*gc->roots));
+  gc->max_roots = gc->roots ? MAX_ROOTS : 0;
+  gc->num_roots = 0;
+
+  if (!gc->roots) return LISHP_GarbageCollector_Destroy(gc);
 
   return gc;
 }
@@ -30,6 +40,22 @@ LISHP_GarbageCollector_Initialize(LISHP_GarbageCollector* gc,
 LISHP_GarbageCollector_Finalize(LISHP_GarbageCollector* gc)
 {
   if (!gc) return nullptr;
+
+  LISHP_GarbageCollector_Sweep(gc);
+
+  gc->roots     = LISHP_Allocator_Free(gc->alloc, gc->roots);
+  gc->max_roots = 0;
+  gc->num_roots = 0;
+
+  gc->heap_growth_factor = 0.0;
+  gc->min_heap_threshold = 0.0;
+  gc->heap_threshold     = 0;
+  gc->heap_size          = 0;
+
+  gc->first_object = nullptr;
+  gc->last_object  = nullptr;
+
+  gc->alloc = nullptr;
 
   return gc;
 }
@@ -76,6 +102,12 @@ void
 LISHP_GarbageCollector_Mark(LISHP_GarbageCollector* gc)
 {
   assert(gc);
+
+  if (!gc->roots) return;
+
+  for (size_t i = 0; i < gc->num_roots; ++i) {
+    LISHP_GarbageCollector_MarkObjectRecursively(gc, gc->roots[i]);
+  }
 }
 
 void
@@ -102,7 +134,7 @@ LISHP_GarbageCollector_ShouldRun(const LISHP_GarbageCollector* gc)
   return gc->heap_size >= gc->heap_threshold;
 }
 
- void
+void
 LISHP_GarbageCollector_Run(LISHP_GarbageCollector* gc)
 {
   assert(gc);
@@ -112,3 +144,28 @@ LISHP_GarbageCollector_Run(LISHP_GarbageCollector* gc)
   LISHP_GarbageCollector_RecomputeThreshold(gc);
 }
 
+/*****************************************************************************/
+/*                                  HELPERS                                  */
+/*****************************************************************************/
+
+static bool
+LISHP_GarbageCollector_MarkObjectRecursively_function(
+  LISHP_Object*          obj,
+  [[maybe_unused]] void* ctx)
+{
+  auto hdr = LISHP_Object_ToHeader(obj);
+  if (hdr->marked) return false;
+
+  hdr->marked = true;
+  return true;
+}
+
+void
+LISHP_GarbageCollector_MarkObjectRecursively(LISHP_GarbageCollector* gc,
+                                             LISHP_Object*           obj)
+{
+  assert(gc);
+  assert(obj);
+  LISHP_Object_Visit(
+    obj, LISHP_GarbageCollector_MarkObjectRecursively_function, gc);
+}

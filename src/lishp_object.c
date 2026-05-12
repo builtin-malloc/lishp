@@ -98,13 +98,14 @@ LISHP_Object_Finalize(LISHP_Object*                     obj,
 
 void
 LISHP_Object_Visit(LISHP_Object* obj,
-                   void          (*visitor)(LISHP_Object*, void*),
+                   bool          (*visitor)(LISHP_Object*, void*),
                    void*         ctx)
 {
   assert(obj);
   assert(visitor);
 
-  visitor(obj, ctx);
+  auto continue_to_recurse = visitor(obj, ctx);
+  if (!continue_to_recurse) return;
 
   switch (LISHP_Object_GetTag(obj)) {
 
