@@ -3,7 +3,23 @@
 
 #include "lishp/lishp_prelude.h"
 
+#include <assert.h>
 #include <stddef.h>
+#include <stdlib.h>
+
+/*****************************************************************************/
+/*                                 CONSTANTS                                 */
+/*****************************************************************************/
+
+/**
+ * @brief Symbol for the OUT-OF-MEMORY error condition
+ */
+[[maybe_unused]] static const LISHP_Value LISHP_OUT_OF_MEMORY_SYMBOL =
+  (LISHP_Value)NULL;
+/**
+ * @brief nil
+ */
+[[maybe_unused]] static const LISHP_Value LISHP_NIL = (LISHP_Value)NULL;
 
 /*****************************************************************************/
 /*                                  REPL API                                 */
@@ -51,6 +67,25 @@ LISHP_Print(LISHP_Context* ctx, [[maybe_unused]] LISHP_Value form)
 {
   if (!ctx) return NULL;
   return "repr";
+}
+
+/*****************************************************************************/
+/*                               CONDITION API                               */
+/*****************************************************************************/
+
+/**
+ * @brief Signals an error
+ * @note Either, this transfers flow control to the signal handler for this
+ *       condition type or it aborts the entire program.
+ */
+[[noreturn, maybe_unused]] static inline void
+LISHP_Error(LISHP_Context*               ctx,
+            [[maybe_unused]] LISHP_Value condition_type,
+            [[maybe_unused]] LISHP_Value condition_detail)
+{
+  assert(ctx);
+
+  abort();
 }
 
 #endif /* LISHP_API_H */

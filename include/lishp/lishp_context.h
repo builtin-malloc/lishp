@@ -70,6 +70,16 @@ LISHP_Context_Destroy(LISHP_Context* ctx)
 /*****************************************************************************/
 
 /**
+ * @returns The context's garbage collector
+ * @note It is inherited from the global runtime used to create this context
+ */
+[[nodiscard, maybe_unused]] static inline LISHP_GarbageCollector*
+LISHP_Context_GetGarbageCollector(LISHP_Context* ctx)
+{
+  return ctx ? LISHP_Runtime_GetGarbageCollector(ctx->runtime) : nullptr;
+}
+
+/**
  * @returns The context's allocator
  * @note It is inherited from the global runtime used to create this context
  */

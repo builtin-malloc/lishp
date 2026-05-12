@@ -20,7 +20,8 @@
  */
 struct LISHP_Runtime
 {
-  LISHP_Allocator* alloc;
+  LISHP_GarbageCollector* garbage_collector;
+  LISHP_Allocator*        alloc;
 };
 
 /*****************************************************************************/
@@ -61,6 +62,15 @@ LISHP_Runtime_Destroy(LISHP_Runtime* rt)
 /*****************************************************************************/
 /*                                 ACCESSORS                                 */
 /*****************************************************************************/
+
+/**
+ * @returns The runtime's garbage collector
+ */
+[[nodiscard, maybe_unused]] static inline LISHP_GarbageCollector*
+LISHP_Runtime_GetGarbageCollector(LISHP_Runtime* rt)
+{
+  return rt ? rt->garbage_collector : nullptr;
+}
 
 /**
  * @returns The runtime's allocator
