@@ -19,8 +19,8 @@ struct LISHP_GarbageCollector
 {
   LISHP_Allocator* alloc;
 
-  LISHP_GarbageCollector_Header* first_object;
-  LISHP_GarbageCollector_Header* last_object;
+  LISHP_GarbageCollector_Header* first_object_header;
+  LISHP_GarbageCollector_Header* last_object_header;
 
   float  heap_growth_factor;
   size_t min_heap_threshold;
@@ -116,7 +116,18 @@ LISHP_Object_ToHeader(LISHP_Object* object)
 /*****************************************************************************/
 
 void
+LISHP_GarbageCollector_TrackObject(LISHP_GarbageCollector*        gc,
+                                   LISHP_GarbageCollector_Header* hdr);
+void
+LISHP_GarbageCollector_UntrackObject(LISHP_GarbageCollector*        gc,
+                                     LISHP_GarbageCollector_Header* prev,
+                                     LISHP_GarbageCollector_Header* cur,
+                                     LISHP_GarbageCollector_Header* next);
+void
 LISHP_GarbageCollector_MarkObjectRecursively(LISHP_GarbageCollector* gc,
                                              LISHP_Object*           obj);
+
+void
+LISHP_GarbageCollector_FreeAllObjects(LISHP_GarbageCollector* gc);
 
 #endif /* LISHP_GARBAGE_COLLECTOR_H */
